@@ -1,0 +1,53 @@
+<!-- app/views/events/index.html.erb -->
+<div class="events-container"
+     data-controller="events"
+     data-events-per-value="50">
+
+  <table class="events-table">
+    <thead>
+      <tr>
+        <th>Timestamp</th>
+        <th>Actor</th>
+        <th>Action</th>
+        <th>Resource</th>
+        <th>Type</th>
+        <th>Correlation ID</th>
+      </tr>
+    </thead>
+    <tbody data-events-target="body">
+      <!-- rows injected here -->
+    </tbody>
+  </table>
+</div>
+
+<style>
+.events-container {
+  padding: 1rem;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.events-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: sans-serif;
+  font-size: 0.875rem;
+}
+.events-table th,
+.events-table td {
+  border: 1px solid #e2e8f0;
+  padding: 0.75rem;
+  text-align: left;
+}
+.events-table th {
+  background: #f7fafc;
+  font-weight: 600;
+}
+.events-table tr:nth-child(even) {
+  background: #f7fafc;
+}
+.events-table tr:hover {
+  background: #edf2f7;
+}
+</style>
