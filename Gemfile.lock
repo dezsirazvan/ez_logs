@@ -189,6 +189,7 @@ GEM
     globalid (1.2.1)
       activesupport (>= 6.1)
     hashdiff (1.2.0)
+    hashie (5.0.0)
     hiredis-client (0.25.0)
       redis-client (= 0.25.0)
     httparty (0.23.1)
@@ -216,6 +217,8 @@ GEM
     json (2.11.3)
     jsonapi-serializer (2.2.0)
       activesupport (>= 4.2)
+    jwt (2.10.1)
+      base64
     kamal (2.6.0)
       activesupport (>= 7.0)
       base64 (~> 0.2)
@@ -288,6 +291,29 @@ GEM
       racc (~> 1.4)
     nokogiri (1.18.8-x86_64-linux-musl)
       racc (~> 1.4)
+    oauth2 (2.0.12)
+      faraday (>= 0.17.3, < 4.0)
+      jwt (>= 1.0, < 4.0)
+      logger (~> 1.2)
+      multi_xml (~> 0.5)
+      rack (>= 1.2, < 4)
+      snaky_hash (~> 2.0, >= 2.0.3)
+      version_gem (>= 1.1.8, < 3)
+    omniauth (2.1.3)
+      hashie (>= 3.4.6)
+      rack (>= 2.2.3)
+      rack-protection
+    omniauth-github (2.0.1)
+      omniauth (~> 2.0)
+      omniauth-oauth2 (~> 1.8)
+    omniauth-google-oauth2 (1.2.1)
+      jwt (>= 2.9.2)
+      oauth2 (~> 2.0)
+      omniauth (~> 2.0)
+      omniauth-oauth2 (~> 1.8)
+    omniauth-oauth2 (1.8.0)
+      oauth2 (>= 1.4, < 3)
+      omniauth (~> 2.0)
     orm_adapter (0.5.0)
     ostruct (0.6.1)
     parallel (1.27.0)
@@ -330,6 +356,10 @@ GEM
     rack (3.1.14)
     rack-attack (6.7.0)
       rack (>= 1.0, < 4)
+    rack-protection (4.1.1)
+      base64 (>= 0.1.0)
+      logger (>= 1.6.0)
+      rack (>= 3.0.0, < 4)
     rack-session (2.1.1)
       base64 (>= 0.1.0)
       rack (>= 3.0.0)
@@ -381,6 +411,7 @@ GEM
       actionpack (>= 5.2)
       railties (>= 5.2)
     rexml (3.4.1)
+    rotp (6.3.0)
     rouge (4.5.2)
     rqrcode (2.2.0)
       chunky_png (~> 1.0)
@@ -468,6 +499,9 @@ GEM
       simplecov_json_formatter (~> 0.1)
     simplecov-html (0.13.1)
     simplecov_json_formatter (0.1.4)
+    snaky_hash (2.0.3)
+      hashie (>= 0.1.0, < 6)
+      version_gem (>= 1.1.8, < 3)
     solid_cable (3.0.8)
       actioncable (>= 7.2)
       activejob (>= 7.2)
@@ -523,6 +557,7 @@ GEM
     useragent (0.16.11)
     vcr (6.3.1)
       base64
+    version_gem (1.1.8)
     warden (1.2.9)
       rack (>= 2.0.9)
     web-console (4.2.1)
@@ -560,7 +595,7 @@ PLATFORMS
 
 DEPENDENCIES
   aws-sdk-s3 (~> 1.0)
-  bcrypt (~> 3.1.7)
+  bcrypt (~> 3.1)
   better_errors (~> 2.10)
   binding_of_caller (~> 1.0)
   blind_index (~> 2.3)
@@ -579,9 +614,13 @@ DEPENDENCIES
   importmap-rails
   jbuilder
   jsonapi-serializer (~> 2.2)
+  jwt (~> 2.7)
   kamal
   letter_opener (~> 1.8)
   lockbox (~> 1.4)
+  omniauth (~> 2.1)
+  omniauth-github (~> 2.0)
+  omniauth-google-oauth2 (~> 1.1)
   pg (~> 1.1)
   prometheus-client (~> 4.0)
   propshaft
@@ -593,6 +632,7 @@ DEPENDENCIES
   rack-attack (~> 6.7)
   rails (~> 8.0.2)
   redis (~> 5.0)
+  rotp (~> 6.2)
   rqrcode (~> 2.1)
   rspec-rails (~> 7.0)
   rubocop-rails-omakase
@@ -608,7 +648,7 @@ DEPENDENCIES
   solid_cache
   solid_queue
   stimulus-rails
-  strong_password (~> 0.0.9)
+  strong_password (~> 0.0.8)
   tailwindcss-rails
   thruster
   timecop (~> 0.9)

@@ -22,7 +22,7 @@ gem "tailwindcss-rails"
 # Authentication and Authorization
 gem "devise", "~> 4.9"  # Authentication
 gem "pundit", "~> 2.3"  # Authorization
-# gem "devise-two-factor", "~> 4.1"  # MFA support (incompatible with Rails 8, revisit for 2FA)
+gem "rotp", "~> 6.2"
 gem "rqrcode", "~> 2.1"  # QR codes for MFA
 
 # Background Job Processing
@@ -44,7 +44,7 @@ gem "httparty", "~> 0.21"           # HTTP client for AI services
 gem "ruby-openai", "~> 7.0"         # OpenAI API client
 
 # Security and Validation
-gem "strong_password", "~> 0.0.9"   # Password strength validation
+gem "strong_password", "~> 0.0.8"   # Password strength validation
 gem "lockbox", "~> 1.4"             # Encrypted attributes
 gem "blind_index", "~> 2.3"         # Searchable encrypted data
 
@@ -58,7 +58,7 @@ gem "image_processing", "~> 1.2"    # Image processing
 gem "aws-sdk-s3", "~> 1.0"          # S3 storage (optional)
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
-gem "bcrypt", "~> 3.1.7"
+gem "bcrypt", "~> 3.1"
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]
@@ -76,6 +76,14 @@ gem "kamal", require: false
 
 # Add HTTP asset caching/compression and X-Sendfile acceleration to Puma [https://github.com/basecamp/thruster/]
 gem "thruster", require: false
+
+# OAuth
+gem "omniauth", "~> 2.1"
+gem "omniauth-google-oauth2", "~> 1.1"
+gem "omniauth-github", "~> 2.0"
+
+# API Authentication
+gem "jwt", "~> 2.7"
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem

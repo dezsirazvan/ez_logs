@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_20_125745) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_20_133120) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -97,12 +97,40 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_20_125745) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "invitations", force: :cascade do |t|
+    t.string "email"
+    t.bigint "team_id", null: false
+    t.bigint "role_id", null: false
+    t.bigint "invited_by_id", null: false
+    t.string "status"
+    t.datetime "expires_at"
+    t.string "token"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["invited_by_id"], name: "index_invitations_on_invited_by_id"
+    t.index ["role_id"], name: "index_invitations_on_role_id"
+    t.index ["team_id"], name: "index_invitations_on_team_id"
+  end
+
+  create_table "roles", force: :cascade do |t|
+    t.string "name"
+    t.text "description"
+    t.json "permissions"
+    t.boolean "is_active"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "teams", force: :cascade do |t|
     t.string "name"
     t.text "description"
     t.bigint "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.json "settings"
+    t.boolean "is_active", default: true
+    t.bigint "owner_id", null: false
+    t.index ["owner_id"], name: "index_teams_on_owner_id"
     t.index ["user_id"], name: "index_teams_on_user_id"
   end
 
@@ -126,14 +154,38 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_20_125745) do
     t.datetime "remember_created_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "first_name"
+    t.string "last_name"
+    t.bigint "role_id", null: false
+    t.bigint "team_id"
+    t.string "avatar"
+    t.string "two_factor_secret"
+    t.text "two_factor_backup_codes"
+    t.boolean "mfa_enabled"
+    t.datetime "last_login_at"
+    t.integer "login_count"
+    t.integer "failed_login_attempts"
+    t.datetime "locked_at"
+    t.datetime "confirmed_at"
+    t.datetime "confirmation_sent_at"
+    t.string "confirmation_token"
+    t.string "unconfirmed_email"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+    t.index ["role_id"], name: "index_users_on_role_id"
+    t.index ["team_id"], name: "index_users_on_team_id"
   end
 
   add_foreign_key "alerts", "users"
   add_foreign_key "api_keys", "users"
   add_foreign_key "audit_logs", "users"
   add_foreign_key "event_translations", "events"
+  add_foreign_key "invitations", "roles"
+  add_foreign_key "invitations", "teams"
+  add_foreign_key "invitations", "users", column: "invited_by_id"
   add_foreign_key "teams", "users"
+  add_foreign_key "teams", "users", column: "owner_id"
   add_foreign_key "user_sessions", "users"
+  add_foreign_key "users", "roles"
+  add_foreign_key "users", "teams"
 end
