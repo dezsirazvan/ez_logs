@@ -158,3 +158,6 @@ dump.rdb
 
 # Ignore Sidekiq files
 sidekiq.pid
+
+/app/assets/builds/*
+!/app/assets/builds/.keep

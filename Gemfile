@@ -16,11 +16,13 @@ gem "turbo-rails"
 gem "stimulus-rails"
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 gem "jbuilder"
+# Tailwind CSS for styling [https://github.com/rails/tailwindcss-rails]
+gem "tailwindcss-rails"
 
 # Authentication and Authorization
 gem "devise", "~> 4.9"  # Authentication
 gem "pundit", "~> 2.3"  # Authorization
-gem "devise-two-factor", "~> 4.1"  # MFA support
+# gem "devise-two-factor", "~> 4.1"  # MFA support (incompatible with Rails 8, revisit for 2FA)
 gem "rqrcode", "~> 2.1"  # QR codes for MFA
 
 # Background Job Processing
@@ -28,8 +30,8 @@ gem "sidekiq", "~> 7.2"  # Background job processing
 gem "redis", "~> 5.0"    # Redis client
 
 # API and JSON
-gem "jsonapi-serializer", "~> 2.4"  # JSON:API serialization
-gem "rack-attack", "~> 7.0"         # Rate limiting and security
+gem "jsonapi-serializer", "~> 2.2"  # JSON:API serialization
+gem "rack-attack", "~> 6.7"         # Rate limiting and security
 
 # Monitoring and Observability
 gem "sentry-ruby", "~> 5.17"        # Error tracking
@@ -47,7 +49,7 @@ gem "lockbox", "~> 1.4"             # Encrypted attributes
 gem "blind_index", "~> 2.3"         # Searchable encrypted data
 
 # Performance and Caching
-gem "redis-rails", "~> 5.0"         # Redis session store
+# gem "redis-rails", "~> 5.0"         # Redis session store
 gem "hiredis-client", "~> 0.12"     # Fast Redis client
 gem "connection_pool", "~> 2.4"     # Connection pooling
 
@@ -90,7 +92,7 @@ group :development, :test do
   gem "factory_bot_rails", "~> 6.4"
   gem "faker", "~> 3.2"
   gem "capybara", "~> 3.40"
-  gem "selenium-webdriver", "~> 4.15"
+  gem "selenium-webdriver", "~> 4.10"
   gem "webdrivers", "~> 5.3"
   gem "database_cleaner-active_record", "~> 2.1"
   gem "vcr", "~> 6.2"
@@ -105,18 +107,12 @@ group :development do
   gem "web-console"
 
   # Development tools
-  gem "annotate", "~> 3.2"           # Model annotations
-  gem "bullet", "~> 7.1"             # N+1 query detection
+  # gem "annotate", "~> 3.2"           # Model annotations
+  # gem "bullet", "~> 7.1"             # N+1 query detection (incompatible with Rails 8, revisit)
   gem "letter_opener", "~> 1.8"      # Email preview
   gem "better_errors", "~> 2.10"     # Better error pages
   gem "binding_of_caller", "~> 1.0"  # Interactive debugging
   gem "pry-rails", "~> 0.3"          # Enhanced console
   gem "pry-byebug", "~> 3.10"        # Debugging in pry
   gem "pry-stack_explorer", "~> 0.6" # Stack exploration
-end
-
-group :test do
-  # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
-  gem "capybara"
-  gem "selenium-webdriver"
 end

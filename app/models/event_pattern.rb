@@ -1,0 +1,2 @@
+class EventPattern < ApplicationRecord
+end
