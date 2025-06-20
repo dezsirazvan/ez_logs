@@ -1,0 +1,95 @@
+# Build artifacts and compiled files
+/public/assets/
+/public/packs/
+/tmp/
+/tmp/cache/
+/tmp/sockets/
+/tmp/pids/
+
+# Logs and data files
+/log/
+*.log
+*.sqlite
+*.sqlite3
+*.db
+
+# Environment and secrets
+.env
+.env.local
+.env.*.local
+.envrc
+config/secrets.yml
+config/credentials.yml.enc
+config/master.key
+
+# Dependencies
+/node_modules/
+/vendor/bundle/
+/.bundle/
+
+# Test artifacts and coverage
+/coverage/
+/coverage.data
+spec/examples.txt
+.rspec_status
+
+# Database files
+*.sql
+*.dump
+*.backup
+
+# Large data files
+*.csv
+*.json
+*.xml
+
+# AI task working files
+# ai_tasks/
+
+# IDE specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+Thumbs.db
+.directory
+
+# Performance and benchmark data
+/benchmark/results/
+/performance/reports/
+*.pprof
+
+# SSL certificates
+*.pem
+*.key
+*.crt
+*.csr
+
+# Redis dump files
+dump.rdb
+
+# Sidekiq files
+sidekiq.pid
+
+# YARD documentation cache
+.yardoc/
+doc/
+
+# RuboCop cache
+.rubocop-*
+.rubocop_cache/
+
+# Asset pipeline cache
+/public/assets
+/public/packs
+
+# Uploaded files
+/public/uploads/
+
+# Backup files
+*.bak
+*.backup 
