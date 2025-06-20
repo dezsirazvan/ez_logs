@@ -1,8 +1,10 @@
 class Invitation < ApplicationRecord
   # Associations
+  belongs_to :company
   belongs_to :team
   belongs_to :role
   belongs_to :invited_by, class_name: "User"
+  has_many :audit_logs, as: :auditable, dependent: :destroy
 
   # Validations
   validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }

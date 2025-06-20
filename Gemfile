@@ -1,126 +1,147 @@
 source "https://rubygems.org"
 
+git_source(:github) { |repo| "https://github.com/#{repo}.git" }
+
+ruby "3.4.2"
+
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 8.0.2"
-# The modern asset pipeline for Rails [https://github.com/rails/propshaft]
-gem "propshaft"
+
+# The original asset pipeline for Rails [https://github.com/rails/sprockets-rails]
+gem "sprockets-rails"
+
 # Use postgresql as the database for Active Record
 gem "pg", "~> 1.1"
+
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", ">= 5.0"
-# Use JavaScript with ESM import maps [https://github.com/rails/importmap-rails]
-gem "importmap-rails"
-# Hotwire's SPA-like page accelerator [https://turbo.hotwired.dev]
-gem "turbo-rails"
-# Hotwire's modest JavaScript framework [https://stimulus.hotwired.dev]
-gem "stimulus-rails"
+
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
-gem "jbuilder"
+gem "jbuilder", "~> 2.11"
+
 # Tailwind CSS for styling [https://github.com/rails/tailwindcss-rails]
 gem "tailwindcss-rails"
 
-# Authentication and Authorization
-gem "devise", "~> 4.9"  # Authentication
-gem "pundit", "~> 2.3"  # Authorization
-gem "rotp", "~> 6.2"
-gem "rqrcode", "~> 2.1"  # QR codes for MFA
+# Import maps for JavaScript [https://github.com/rails/importmap-rails]
+gem "importmap-rails"
 
-# Background Job Processing
-gem "sidekiq", "~> 7.2"  # Background job processing
-gem "redis", "~> 5.0"    # Redis client
-
-# API and JSON
-gem "jsonapi-serializer", "~> 2.2"  # JSON:API serialization
-gem "rack-attack", "~> 6.7"         # Rate limiting and security
-
-# Monitoring and Observability
-gem "sentry-ruby", "~> 5.17"        # Error tracking
-gem "sentry-rails", "~> 5.17"       # Rails integration
-gem "sentry-sidekiq", "~> 5.17"     # Sidekiq integration
-gem "prometheus-client", "~> 4.0"   # Metrics collection
-
-# AI Integration
-gem "httparty", "~> 0.21"           # HTTP client for AI services
-gem "ruby-openai", "~> 7.0"         # OpenAI API client
-
-# Security and Validation
-gem "strong_password", "~> 0.0.8"   # Password strength validation
-gem "lockbox", "~> 1.4"             # Encrypted attributes
-gem "blind_index", "~> 2.3"         # Searchable encrypted data
-
-# Performance and Caching
-# gem "redis-rails", "~> 5.0"         # Redis session store
-gem "hiredis-client", "~> 0.12"     # Fast Redis client
-gem "connection_pool", "~> 2.4"     # Connection pooling
-
-# File Processing
-gem "image_processing", "~> 1.2"    # Image processing
-gem "aws-sdk-s3", "~> 1.0"          # S3 storage (optional)
+# Use Redis adapter to run Action Cable in production
+gem "redis", "~> 5.0"
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
-gem "bcrypt", "~> 3.1"
+# gem "bcrypt", "~> 3.1.7"
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
-gem "tzinfo-data", platforms: %i[ windows jruby ]
+# and associated library.
+#
+# Uncomment the following line if you're running Rails
+# on a native Windows system:
+# gem "tzinfo", ">= 1", "< 3"
 
-# Use the database-backed adapters for Rails.cache, Active Job, and Action Cable
-gem "solid_cache"
-gem "solid_queue"
-gem "solid_cable"
+gem "tzinfo-data", platforms: %i[ mingw mswin x64_mingw jruby ]
 
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", require: false
 
-# Deploy this application anywhere as a Docker container [https://kamal-deploy.org]
-gem "kamal", require: false
+# Authentication
+gem "devise", "~> 4.9"
+gem "rotp", "~> 6.2" # For TOTP-based 2FA
 
-# Add HTTP asset caching/compression and X-Sendfile acceleration to Puma [https://github.com/basecamp/thruster/]
-gem "thruster", require: false
+# Authorization
+gem "pundit", "~> 2.3"
 
-# OAuth
-gem "omniauth", "~> 2.1"
-gem "omniauth-google-oauth2", "~> 1.1"
-gem "omniauth-github", "~> 2.0"
+# Background Jobs
+gem "sidekiq", "~> 7.2"
 
-# API Authentication
-gem "jwt", "~> 2.7"
+# API
+gem "rack-cors", "~> 2.0"
 
+# Monitoring and Logging
+gem "lograge", "~> 0.12"
+gem "sentry-ruby", "~> 5.17"
+gem "sentry-rails", "~> 5.17"
+
+# Security
+gem "brakeman", "~> 6.1", require: false
+gem "bundler-audit", "~> 0.9", require: false
+
+# Development and Testing
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
-  gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
-
-  # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
-  gem "brakeman", require: false
-
-  # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
-  gem "rubocop-rails-omakase", require: false
-
-  # Testing framework
-  gem "rspec-rails", "~> 7.0"
+  gem "debug", platforms: %i[ mri mingw x64_mingw ]
+  gem "rspec-rails", "~> 6.1"
   gem "factory_bot_rails", "~> 6.4"
   gem "faker", "~> 3.2"
-  gem "capybara", "~> 3.40"
-  gem "selenium-webdriver", "~> 4.10"
-  gem "webdrivers", "~> 5.3"
-  gem "database_cleaner-active_record", "~> 2.1"
+  gem "shoulda-matchers", "~> 5.3"
+  gem "simplecov", "~> 0.22", require: false
   gem "vcr", "~> 6.2"
   gem "webmock", "~> 3.19"
-  gem "shoulda-matchers", "~> 6.1"
   gem "timecop", "~> 0.9"
-  gem "simplecov", "~> 0.22", require: false
+  gem "database_cleaner-active_record", "~> 2.1"
 end
 
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
 
-  # Development tools
-  # gem "annotate", "~> 3.2"           # Model annotations
-  # gem "bullet", "~> 7.1"             # N+1 query detection (incompatible with Rails 8, revisit)
-  gem "letter_opener", "~> 1.8"      # Email preview
-  gem "better_errors", "~> 2.10"     # Better error pages
-  gem "binding_of_caller", "~> 1.0"  # Interactive debugging
-  gem "pry-rails", "~> 0.3"          # Enhanced console
-  gem "pry-byebug", "~> 3.10"        # Debugging in pry
-  gem "pry-stack_explorer", "~> 0.6" # Stack exploration
+  # Better error pages
+  gem "better_errors", "~> 2.10"
+  gem "binding_of_caller", "~> 1.0"
+
+  # Code quality
+  gem "rubocop", "~> 1.56", require: false
+  gem "rubocop-rails", "~> 2.20", require: false
+  gem "rubocop-rspec", "~> 2.24", require: false
+
+  # Performance monitoring
+  gem "rack-mini-profiler", "~> 3.1"
+  gem "memory_profiler", "~> 1.0"
+
+  # Development utilities
+  gem "pry-rails", "~> 0.3"
+  gem "pry-byebug", "~> 3.10"
+  gem "awesome_print", "~> 1.9"
 end
+
+group :test do
+  gem "capybara", "~> 3.40"
+  gem "selenium-webdriver", "~> 4.10"
+  gem "webdrivers", "~> 5.3"
+  gem "rspec-sidekiq", "~> 4.1"
+  gem "rails-controller-testing", "~> 1.0"
+end
+
+# Performance monitoring libraries
+gem "skylight", "~> 5.3"
+
+# Pagination
+gem "kaminari", "~> 1.2"
+
+# Search
+gem "ransack", "~> 4.1"
+
+# Charts and graphs
+gem "chartkick", "~> 5.0"
+gem "groupdate", "~> 6.5"
+
+# Rate limiting
+gem "rack-attack", "~> 6.6"
+
+# Health checks
+gem "health_check", "~> 3.1"
+
+# Feature flags
+gem "flipper", "~> 0.25"
+gem "flipper-ui", "~> 0.25"
+
+# Background job monitoring
+gem "sidekiq-failures", "~> 1.0"
+
+
+# Testing utilities
+gem "database_cleaner", "~> 2.0"
+gem "email_spec", "~> 2.2"
+gem "launchy", "~> 2.5"
+
+# CSV support for exports
+gem "csv", "~> 3.2"

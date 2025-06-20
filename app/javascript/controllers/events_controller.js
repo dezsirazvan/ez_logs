@@ -25,14 +25,17 @@ export default class extends Controller {
   }
 
   rowTemplate(e) {
+    const actor = e.actor_type && e.actor_id ? `${e.actor_type}: ${e.actor_id}` : 'Unknown Actor'
+    const subject = e.subject_type && e.subject_id ? `${e.subject_type}: ${e.subject_id}` : 'N/A'
+    
     return `
       <tr>
-        <td>${new Date(e.timestamp).toLocaleString()}</td>
-        <td>${e.actor}</td>
+        <td>${new Date(e.timestamp || e.created_at).toLocaleString()}</td>
+        <td>${actor}</td>
         <td>${e.action}</td>
-        <td>${e.resource}</td>
+        <td>${subject}</td>
         <td>${e.event_type}</td>
-        <td>${e.correlation_id}</td>
+        <td>${e.correlation_id || 'N/A'}</td>
       </tr>
     `
   }

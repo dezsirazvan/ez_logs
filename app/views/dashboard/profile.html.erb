@@ -1,0 +1,193 @@
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">Profile</h1>
+      <p class="mt-2 text-gray-600">Manage your account settings and preferences</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Profile Information -->
+      <div class="lg:col-span-2 space-y-6">
+        <!-- Basic Information -->
+        <div class="bg-white shadow rounded-lg">
+          <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Basic Information</h3>
+          </div>
+          <div class="p-6">
+            <%= form_with model: @user, url: users_profile_path, method: :patch, local: true, class: "space-y-4" do |f| %>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <%= f.label :first_name, class: "block text-sm font-medium text-gray-700" %>
+                  <%= f.text_field :first_name, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" %>
+                </div>
+                <div>
+                  <%= f.label :last_name, class: "block text-sm font-medium text-gray-700" %>
+                  <%= f.text_field :last_name, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" %>
+                </div>
+              </div>
+              <div>
+                <%= f.label :email, class: "block text-sm font-medium text-gray-700" %>
+                <%= f.email_field :email, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" %>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <%= f.label :timezone, class: "block text-sm font-medium text-gray-700" %>
+                  <%= f.select :timezone, ActiveSupport::TimeZone.all.map { |tz| [tz.name, tz.name] }, {}, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" %>
+                </div>
+                <div>
+                  <%= f.label :language, class: "block text-sm font-medium text-gray-700" %>
+                  <%= f.select :language, [['English', 'en'], ['Spanish', 'es'], ['French', 'fr'], ['German', 'de']], {}, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" %>
+                </div>
+              </div>
+              <div class="flex justify-end">
+                <%= f.submit "Update Profile", class: "bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <!-- Change Password -->
+        <div class="bg-white shadow rounded-lg">
+          <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Change Password</h3>
+          </div>
+          <div class="p-6">
+            <%= form_with url: users_change_password_path, method: :patch, local: true, class: "space-y-4" do |f| %>
+              <div>
+                <%= f.label :current_password, "Current Password", class: "block text-sm font-medium text-gray-700" %>
+                <%= f.password_field :current_password, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" %>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <%= f.label :new_password, "New Password", class: "block text-sm font-medium text-gray-700" %>
+                  <%= f.password_field :new_password, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" %>
+                </div>
+                <div>
+                  <%= f.label :new_password_confirmation, "Confirm New Password", class: "block text-sm font-medium text-gray-700" %>
+                  <%= f.password_field :new_password_confirmation, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" %>
+                </div>
+              </div>
+              <div class="flex justify-end">
+                <%= f.submit "Change Password", class: "bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <!-- Two-Factor Authentication -->
+        <div class="bg-white shadow rounded-lg">
+          <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Two-Factor Authentication</h3>
+          </div>
+          <div class="p-6">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <p class="text-sm font-medium text-gray-900">Status</p>
+                <p class="text-sm text-gray-500">
+                  <% if @user.mfa_enabled? %>
+                    <span class="text-green-600">Enabled</span>
+                  <% else %>
+                    <span class="text-red-600">Disabled</span>
+                  <% end %>
+                </p>
+              </div>
+              <div class="flex space-x-2">
+                <% if @user.mfa_enabled? %>
+                  <%= button_to "Disable MFA", users_disable_mfa_path, method: :patch, class: "bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2", data: { confirm: "Are you sure you want to disable two-factor authentication?" } %>
+                <% else %>
+                  <%= button_to "Enable MFA", users_enable_mfa_path, method: :patch, class: "bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2" %>
+                <% end %>
+              </div>
+            </div>
+            
+            <% if @user.mfa_enabled? %>
+              <div class="mt-4 p-4 bg-gray-50 rounded-md">
+                <h4 class="text-sm font-medium text-gray-900 mb-2">Backup Codes</h4>
+                <p class="text-sm text-gray-600 mb-3">Keep these backup codes in a safe place. You can use them to access your account if you lose your two-factor authentication device.</p>
+                <%= button_to "Regenerate Backup Codes", users_regenerate_backup_codes_path, method: :patch, class: "bg-yellow-600 text-white px-3 py-1 rounded text-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2", data: { confirm: "This will invalidate all existing backup codes. Are you sure?" } %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="space-y-6">
+        <!-- Account Summary -->
+        <div class="bg-white shadow rounded-lg">
+          <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Account Summary</h3>
+          </div>
+          <div class="p-6 space-y-4">
+            <div>
+              <p class="text-sm font-medium text-gray-700">Full Name</p>
+              <p class="text-sm text-gray-900"><%= @user.full_name %></p>
+            </div>
+            <div>
+              <p class="text-sm font-medium text-gray-700">Email</p>
+              <p class="text-sm text-gray-900"><%= @user.email %></p>
+            </div>
+            <div>
+              <p class="text-sm font-medium text-gray-700">Role</p>
+              <p class="text-sm text-gray-900"><%= @user.role.name.titleize %></p>
+            </div>
+            <% if @user.company %>
+              <div>
+                <p class="text-sm font-medium text-gray-700">Company</p>
+                <p class="text-sm text-gray-900"><%= @user.company.name %></p>
+              </div>
+            <% end %>
+            <div>
+              <p class="text-sm font-medium text-gray-700">Member Since</p>
+              <p class="text-sm text-gray-900"><%= @user.created_at.strftime("%B %d, %Y") %></p>
+            </div>
+            <div>
+              <p class="text-sm font-medium text-gray-700">Last Login</p>
+              <p class="text-sm text-gray-900">
+                <% if @user.last_login_at %>
+                  <%= @user.last_login_at.strftime("%B %d, %Y at %I:%M %p") %>
+                <% else %>
+                  Never
+                <% end %>
+              </p>
+            </div>
+            <div>
+              <p class="text-sm font-medium text-gray-700">Login Count</p>
+              <p class="text-sm text-gray-900"><%= @user.login_count || 0 %></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Events -->
+        <div class="bg-white shadow rounded-lg">
+          <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Recent Events</h3>
+          </div>
+          <div class="p-6">
+            <% if @recent_events.any? %>
+              <div class="space-y-3">
+                <% @recent_events.limit(5).each do |event| %>
+                  <div class="flex items-start space-x-3">
+                    <div class="flex-shrink-0">
+                      <div class="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <p class="text-sm text-gray-900"><%= event.action.titleize %></p>
+                      <p class="text-xs text-gray-500"><%= time_ago_in_words(event.timestamp) %> ago</p>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+              <div class="mt-4">
+                <%= link_to "View All Events", events_path, class: "text-sm text-blue-600 hover:text-blue-500" %>
+              </div>
+            <% else %>
+              <p class="text-sm text-gray-500">No recent events</p>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

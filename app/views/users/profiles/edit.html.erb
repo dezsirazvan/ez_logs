@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Edit Profile - Ez Logs</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+  </head>
+
+  <body class="bg-gray-50">
+    <div class="max-w-4xl mx-auto py-6 sm:px-6 lg:px-8">
+      <!-- Header -->
+      <div class="mb-6">
+        <h1 class="text-3xl font-bold text-gray-900">Edit Profile</h1>
+        <p class="mt-2 text-gray-600">Update your account information and preferences</p>
+      </div>
+
+      <!-- Basic Information -->
+      <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
+        <div class="px-4 py-5 sm:px-6">
+          <h3 class="text-lg leading-6 font-medium text-gray-900">Basic Information</h3>
+          <p class="mt-1 max-w-2xl text-sm text-gray-500">Update your personal information</p>
+        </div>
+        <div class="border-t border-gray-200">
+          <%= form_with model: @user, url: users_profile_path, method: :patch, local: true do |form| %>
+            <div class="px-4 py-5 sm:p-6 space-y-6">
+              <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div>
+                  <%= form.label :first_name, class: "block text-sm font-medium text-gray-700" %>
+                  <%= form.text_field :first_name, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+                </div>
+                
+                <div>
+                  <%= form.label :last_name, class: "block text-sm font-medium text-gray-700" %>
+                  <%= form.text_field :last_name, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+                </div>
+              </div>
+              
+              <div>
+                <%= form.label :email, class: "block text-sm font-medium text-gray-700" %>
+                <%= form.email_field :email, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+              </div>
+              
+              <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div>
+                  <%= form.label :timezone, class: "block text-sm font-medium text-gray-700" %>
+                  <%= form.select :timezone, ActiveSupport::TimeZone.all.map { |tz| [tz.name, tz.name] }, {}, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+                </div>
+                
+                <div>
+                  <%= form.label :language, class: "block text-sm font-medium text-gray-700" %>
+                  <%= form.select :language, [['English', 'en'], ['Spanish', 'es'], ['French', 'fr'], ['German', 'de']], {}, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+                </div>
+              </div>
+              
+              <div class="flex justify-end">
+                <%= form.submit "Update Profile", class: "inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Notification Preferences -->
+      <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
+        <div class="px-4 py-5 sm:px-6">
+          <h3 class="text-lg leading-6 font-medium text-gray-900">Notification Preferences</h3>
+          <p class="mt-1 max-w-2xl text-sm text-gray-500">Configure how you receive notifications</p>
+        </div>
+        <div class="border-t border-gray-200">
+          <div class="px-4 py-5 sm:p-6">
+            <div class="space-y-4">
+              <div class="flex items-center">
+                <%= check_box_tag :email_notifications, "1", @notification_preferences[:email_notifications], 
+                    class: "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" %>
+                <label for="email_notifications" class="ml-2 block text-sm text-gray-900">
+                  Email notifications
+                </label>
+              </div>
+              
+              <div class="flex items-center">
+                <%= check_box_tag :alert_notifications, "1", @notification_preferences[:alert_notifications], 
+                    class: "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" %>
+                <label for="alert_notifications" class="ml-2 block text-sm text-gray-900">
+                  Alert notifications
+                </label>
+              </div>
+              
+              <div class="flex items-center">
+                <%= check_box_tag :team_notifications, "1", @notification_preferences[:team_notifications], 
+                    class: "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" %>
+                <label for="team_notifications" class="ml-2 block text-sm text-gray-900">
+                  Team notifications
+                </label>
+              </div>
+              
+              <div class="flex justify-end">
+                <button type="button" onclick="updateNotificationPreferences()" 
+                        class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                  Update Preferences
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Two-Factor Authentication -->
+      <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
+        <div class="px-4 py-5 sm:px-6">
+          <h3 class="text-lg leading-6 font-medium text-gray-900">Two-Factor Authentication</h3>
+          <p class="mt-1 max-w-2xl text-sm text-gray-500">Secure your account with two-factor authentication</p>
+        </div>
+        <div class="border-t border-gray-200">
+          <div class="px-4 py-5 sm:p-6">
+            <div class="space-y-4">
+              <% if @user.mfa_enabled? %>
+                <div class="flex items-center justify-between p-4 bg-green-50 rounded-md">
+                  <div>
+                    <h4 class="text-sm font-medium text-green-800">Two-Factor Authentication Enabled</h4>
+                    <p class="text-sm text-green-700">Your account is protected with two-factor authentication.</p>
+                  </div>
+                  <%= button_to "Disable 2FA", users_disable_mfa_path, 
+                      method: :patch, 
+                      class: "inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500",
+                      data: { confirm: "Are you sure you want to disable two-factor authentication?" } %>
+                </div>
+                
+                <div class="flex items-center justify-between p-4 bg-blue-50 rounded-md">
+                  <div>
+                    <h4 class="text-sm font-medium text-blue-800">Regenerate Backup Codes</h4>
+                    <p class="text-sm text-blue-700">Generate new backup codes for emergency access.</p>
+                  </div>
+                  <%= button_to "Regenerate Codes", users_regenerate_backup_codes_path, 
+                      method: :patch, 
+                      class: "inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500",
+                      data: { confirm: "This will invalidate your current backup codes. Are you sure?" } %>
+                </div>
+              <% else %>
+                <div class="flex items-center justify-between p-4 bg-yellow-50 rounded-md">
+                  <div>
+                    <h4 class="text-sm font-medium text-yellow-800">Two-Factor Authentication Disabled</h4>
+                    <p class="text-sm text-yellow-700">Enable two-factor authentication to secure your account.</p>
+                  </div>
+                  <%= button_to "Enable 2FA", users_enable_mfa_path, 
+                      method: :patch, 
+                      class: "inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-yellow-700 bg-yellow-100 hover:bg-yellow-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500" %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Change Password -->
+      <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
+        <div class="px-4 py-5 sm:px-6">
+          <h3 class="text-lg leading-6 font-medium text-gray-900">Change Password</h3>
+          <p class="mt-1 max-w-2xl text-sm text-gray-500">Update your account password</p>
+        </div>
+        <div class="border-t border-gray-200">
+          <%= form_with url: users_change_password_path, method: :patch, local: true do |form| %>
+            <div class="px-4 py-5 sm:p-6 space-y-6">
+              <div>
+                <%= form.label :current_password, "Current Password", class: "block text-sm font-medium text-gray-700" %>
+                <%= form.password_field :current_password, required: true, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+              </div>
+              
+              <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div>
+                  <%= form.label :password, "New Password", class: "block text-sm font-medium text-gray-700" %>
+                  <%= form.password_field :password, required: true, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+                </div>
+                
+                <div>
+                  <%= form.label :password_confirmation, "Confirm New Password", class: "block text-sm font-medium text-gray-700" %>
+                  <%= form.password_field :password_confirmation, required: true, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+                </div>
+              </div>
+              
+              <div class="flex justify-end">
+                <%= form.submit "Change Password", class: "inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500" %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Account Summary -->
+      <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:px-6">
+          <h3 class="text-lg leading-6 font-medium text-gray-900">Account Summary</h3>
+          <p class="mt-1 max-w-2xl text-sm text-gray-500">Overview of your account information</p>
+        </div>
+        <div class="border-t border-gray-200">
+          <dl>
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500">Member Since</dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                <%= @user.created_at.strftime("%B %d, %Y") %>
+              </dd>
+            </div>
+            
+            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500">Last Login</dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                <%= @user.last_login_at ? @user.last_login_at.strftime("%B %d, %Y at %I:%M %p") : "Never" %>
+              </dd>
+            </div>
+            
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500">Login Count</dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                <%= @user.login_count || 0 %>
+              </dd>
+            </div>
+            
+            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500">Team</dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                <%= @team_summary ? @team_summary[:name] : "No Team" %>
+              </dd>
+            </div>
+            
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500">Role</dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                <%= @user.role.name.humanize %>
+              </dd>
+            </div>
+            
+            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500">API Keys</dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                <%= @api_key_summary[:active_keys] %> active keys
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  function updateNotificationPreferences() {
+    const formData = new FormData();
+    
+    // Collect checkbox values
+    const checkboxes = ['email_notifications', 'alert_notifications', 'team_notifications'];
+    checkboxes.forEach(name => {
+      const checkbox = document.getElementById(name);
+      if (checkbox && checkbox.checked) {
+        formData.append(name, checkbox.value);
+      }
+    });
+    
+    fetch('<%= users_profile_path %>', {
+      method: 'PATCH',
+      headers: {
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+      },
+      body: formData
+    }).then(response => {
+      if (response.ok) {
+        window.location.reload();
+      } else {
+        alert('Failed to update notification preferences');
+      }
+    });
+  }
+  </script>
+  </body>
+</html> 

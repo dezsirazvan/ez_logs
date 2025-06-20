@@ -1,0 +1,272 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <div class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center py-6">
+        <div class="flex items-center space-x-4">
+          <%= link_to events_path, class: "text-gray-400 hover:text-gray-600" do %>
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+          <% end %>
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900">Event Details</h1>
+            <p class="mt-1 text-sm text-gray-500">Event ID: <%= @event.event_id %></p>
+          </div>
+        </div>
+        <div class="flex space-x-3">
+          <%= link_to "Back to Events", events_path, 
+              class: "inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Main Event Details -->
+      <div class="lg:col-span-2">
+        <!-- Event Card -->
+        <div class="bg-white shadow rounded-lg mb-6">
+          <div class="px-6 py-4 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-4">
+                <div class="w-12 h-12 rounded-full flex items-center justify-center <%= event_type_color_class(@event.event_type) %>">
+                  <%= event_type_icon(@event.event_type) %>
+                </div>
+                <div>
+                  <h2 class="text-xl font-semibold text-gray-900"><%= @event.action %></h2>
+                  <p class="text-sm text-gray-500"><%= @event.event_type.humanize %></p>
+                </div>
+              </div>
+              <div class="text-right">
+                <div class="text-sm text-gray-500">
+                  <%= @event.timestamp.strftime("%B %d, %Y at %I:%M %p") %>
+                </div>
+                <div class="text-xs text-gray-400">
+                  <%= time_ago_in_words(@event.timestamp) %> ago
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="px-6 py-4">
+            <!-- Event Information -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div>
+                <h3 class="text-sm font-medium text-gray-900 mb-2">Event Information</h3>
+                <dl class="space-y-2">
+                  <div>
+                    <dt class="text-xs font-medium text-gray-500">Event ID</dt>
+                    <dd class="text-sm text-gray-900 font-mono"><%= @event.event_id %></dd>
+                  </div>
+                  <div>
+                    <dt class="text-xs font-medium text-gray-500">Correlation ID</dt>
+                    <dd class="text-sm text-gray-900 font-mono"><%= @event.correlation_id || 'None' %></dd>
+                  </div>
+                  <div>
+                    <dt class="text-xs font-medium text-gray-500">Event Type</dt>
+                    <dd class="text-sm text-gray-900"><%= @event.event_type %></dd>
+                  </div>
+                  <div>
+                    <dt class="text-xs font-medium text-gray-500">Action</dt>
+                    <dd class="text-sm text-gray-900"><%= @event.action %></dd>
+                  </div>
+                </dl>
+              </div>
+
+              <div>
+                <h3 class="text-sm font-medium text-gray-900 mb-2">Context</h3>
+                <dl class="space-y-2">
+                  <div>
+                    <dt class="text-xs font-medium text-gray-500">Actor</dt>
+                    <dd class="text-sm text-gray-900"><%= @event.actor_display %></dd>
+                  </div>
+                  <div>
+                    <dt class="text-xs font-medium text-gray-500">Subject</dt>
+                    <dd class="text-sm text-gray-900"><%= @event.subject_display %></dd>
+                  </div>
+                  <div>
+                    <dt class="text-xs font-medium text-gray-500">Source</dt>
+                    <dd class="text-sm text-gray-900"><%= @event.source || 'Unknown' %></dd>
+                  </div>
+                </dl>
+              </div>
+            </div>
+
+            <!-- Metadata -->
+            <% if @event.metadata.present? %>
+              <div class="mb-6">
+                <h3 class="text-sm font-medium text-gray-900 mb-2">Event Details</h3>
+                <div class="bg-gray-50 rounded-lg p-4">
+                  <% if @event.metadata.is_a?(Hash) %>
+                    <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <% @event.metadata.each do |key, value| %>
+                        <div>
+                          <dt class="text-xs font-medium text-gray-500 capitalize"><%= key.humanize %></dt>
+                          <dd class="text-sm text-gray-900">
+                            <% if value.is_a?(Hash) || value.is_a?(Array) %>
+                              <pre class="text-xs bg-white p-2 rounded border overflow-x-auto"><%= JSON.pretty_generate(value) %></pre>
+                            <% else %>
+                              <%= value %>
+                            <% end %>
+                          </dd>
+                        </div>
+                      <% end %>
+                    </dl>
+                  <% else %>
+                    <pre class="text-sm text-gray-900 whitespace-pre-wrap"><%= @event.metadata %></pre>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+
+            <!-- Correlation Context -->
+            <% if @event.correlation_context.present? %>
+              <div class="mb-6">
+                <h3 class="text-sm font-medium text-gray-900 mb-2">Correlation Context</h3>
+                <div class="bg-blue-50 rounded-lg p-4">
+                  <pre class="text-sm text-gray-900 whitespace-pre-wrap"><%= JSON.pretty_generate(@event.correlation_context) %></pre>
+                </div>
+              </div>
+            <% end %>
+
+            <!-- Platform Information -->
+            <% if @event.platform.present? %>
+              <div class="mb-6">
+                <h3 class="text-sm font-medium text-gray-900 mb-2">Platform Information</h3>
+                <div class="bg-gray-50 rounded-lg p-4">
+                  <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <% @event.platform.each do |key, value| %>
+                      <div>
+                        <dt class="text-xs font-medium text-gray-500 capitalize"><%= key.humanize %></dt>
+                        <dd class="text-sm text-gray-900"><%= value %></dd>
+                      </div>
+                    <% end %>
+                  </dl>
+                </div>
+              </div>
+            <% end %>
+
+            <!-- Validation Errors -->
+            <% if @event.validation_errors.present? && @event.validation_errors.any? %>
+              <div class="mb-6">
+                <h3 class="text-sm font-medium text-red-900 mb-2">Validation Errors</h3>
+                <div class="bg-red-50 rounded-lg p-4">
+                  <ul class="list-disc list-inside space-y-1">
+                    <% @event.validation_errors.each do |error| %>
+                      <li class="text-sm text-red-900"><%= error %></li>
+                    <% end %>
+                  </ul>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <!-- Related Events Timeline -->
+        <% if @event.correlation_id.present? %>
+          <% all_correlated_events = Event.where(company: current_user.company, correlation_id: @event.correlation_id).order(:timestamp) %>
+          <% if all_correlated_events.count > 1 %>
+            <div class="bg-white shadow rounded-lg">
+              <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                <div>
+                  <h3 class="text-lg font-medium text-gray-900">Correlation Flow</h3>
+                  <p class="text-sm text-gray-500">Events with the same correlation ID (<span class="font-mono"><%= @event.correlation_id %></span>)</p>
+                  <p class="text-xs text-gray-400 mt-1">Total Events: <%= all_correlated_events.count %> | Actors: <%= all_correlated_events.map { |e| e.actor_display }.uniq.size %> | Types: <%= all_correlated_events.map(&:event_type).uniq.map(&:humanize).join(', ') %></p>
+                </div>
+                <div class="flex space-x-2">
+                  <button onclick="navigator.clipboard.writeText(JSON.stringify(<%= raw @event.to_json %>, null, 2))" class="text-xs text-green-600 hover:underline" title="Copy event JSON for GPT">Translate with GPT</button>
+                </div>
+              </div>
+              <div class="divide-y divide-gray-200">
+                <% all_correlated_events.each_with_index do |correlated_event, idx| %>
+                  <div class="px-6 py-4 hover:bg-gray-50 transition-colors duration-150 <%= 'bg-blue-50 border-l-4 border-blue-500' if correlated_event.id == @event.id %>">
+                    <div class="flex items-start space-x-4">
+                      <!-- Step Number -->
+                      <div class="flex-shrink-0">
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center <%= event_type_color_class(correlated_event.event_type) %>" title="<%= correlated_event.event_type.humanize %>">
+                          <span class="font-bold text-white"><%= idx + 1 %></span>
+                        </div>
+                      </div>
+                      <!-- Event Content -->
+                      <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between">
+                          <div class="flex items-center space-x-2">
+                            <%= link_to event_path(correlated_event), class: "text-sm font-medium #{correlated_event.id == @event.id ? 'text-blue-900' : 'text-gray-900'} hover:text-blue-600 hover:underline", title: "View event details" do %>
+                              <%= correlated_event.action %>
+                            <% end %>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800" title="Event Type">
+                              <%= correlated_event.event_type.humanize %>
+                            </span>
+                            <% if correlated_event.id == @event.id %>
+                              <span class="ml-2 px-2 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800" title="Current Event">Current Event</span>
+                            <% end %>
+                          </div>
+                          <div class="text-sm text-gray-500">
+                            <%= correlated_event.timestamp.strftime("%Y-%m-%d %H:%M:%S") %>
+                          </div>
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1">
+                          <span title="Actor"><%= correlated_event.actor_display %></span> | <span title="Subject"><%= correlated_event.subject_display %></span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="lg:col-span-1">
+        <!-- Quick Actions -->
+        <div class="bg-white shadow rounded-lg mb-6">
+          <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Quick Actions</h3>
+          </div>
+          <div class="px-6 py-4 space-y-3">
+            <%= link_to "View All Events", events_path, 
+                class: "w-full inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+            
+            <% if @event.correlation_id.present? %>
+              <%= link_to "View Correlation Flow", events_path(correlation_id: @event.correlation_id), 
+                  class: "w-full inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+            <% end %>
+          </div>
+        </div>
+
+        <!-- Event Statistics -->
+        <div class="bg-white shadow rounded-lg">
+          <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Event Statistics</h3>
+          </div>
+          <div class="px-6 py-4">
+            <dl class="space-y-4">
+              <div>
+                <dt class="text-sm font-medium text-gray-500">Correlated Events</dt>
+                <dd class="text-2xl font-bold text-gray-900">
+                  <% if @event.correlation_id.present? %>
+                    <%= Event.where(company: current_user.company, correlation_id: @event.correlation_id).count %>
+                  <% else %>
+                    0
+                  <% end %>
+                </dd>
+              </div>
+              <div>
+                <dt class="text-sm font-medium text-gray-500">Event Age</dt>
+                <dd class="text-sm text-gray-900"><%= time_ago_in_words(@event.timestamp) %> ago</dd>
+              </div>
+              <div>
+                <dt class="text-sm font-medium text-gray-500">Company</dt>
+                <dd class="text-sm text-gray-900"><%= @event.company.name %></dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

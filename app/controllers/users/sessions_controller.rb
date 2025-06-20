@@ -18,7 +18,7 @@ class Users::SessionsController < Devise::SessionsController
       redirect_to new_user_session_path and return
     end
 
-    if user&.require_mfa?
+    if user&.mfa_enabled?
       # Store user ID in session for MFA verification
       session[:pending_mfa_user_id] = user.id
       session[:pending_mfa_remember_me] = params[:user][:remember_me]
