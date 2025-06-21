@@ -9,266 +9,138 @@
   </head>
 
   <body class="bg-gray-50">
-    <div class="max-w-4xl mx-auto py-6 sm:px-6 lg:px-8">
-      <!-- Header -->
-      <div class="mb-6">
-        <h1 class="text-3xl font-bold text-gray-900">Edit Profile</h1>
-        <p class="mt-2 text-gray-600">Update your account information and preferences</p>
-      </div>
-
-      <!-- Basic Information -->
-      <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
-        <div class="px-4 py-5 sm:px-6">
-          <h3 class="text-lg leading-6 font-medium text-gray-900">Basic Information</h3>
-          <p class="mt-1 max-w-2xl text-sm text-gray-500">Update your personal information</p>
-        </div>
-        <div class="border-t border-gray-200">
-          <%= form_with model: @user, url: users_profile_path, method: :patch, local: true do |form| %>
-            <div class="px-4 py-5 sm:p-6 space-y-6">
-              <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                <div>
-                  <%= form.label :first_name, class: "block text-sm font-medium text-gray-700" %>
-                  <%= form.text_field :first_name, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
-                </div>
-                
-                <div>
-                  <%= form.label :last_name, class: "block text-sm font-medium text-gray-700" %>
-                  <%= form.text_field :last_name, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
-                </div>
-              </div>
-              
-              <div>
-                <%= form.label :email, class: "block text-sm font-medium text-gray-700" %>
-                <%= form.email_field :email, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
-              </div>
-              
-              <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                <div>
-                  <%= form.label :timezone, class: "block text-sm font-medium text-gray-700" %>
-                  <%= form.select :timezone, ActiveSupport::TimeZone.all.map { |tz| [tz.name, tz.name] }, {}, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
-                </div>
-                
-                <div>
-                  <%= form.label :language, class: "block text-sm font-medium text-gray-700" %>
-                  <%= form.select :language, [['English', 'en'], ['Spanish', 'es'], ['French', 'fr'], ['German', 'de']], {}, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
-                </div>
-              </div>
-              
-              <div class="flex justify-end">
-                <%= form.submit "Update Profile", class: "inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
-              </div>
+    <div class="min-h-screen bg-gray-50 py-8">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+          <div class="flex items-center justify-between">
+            <div>
+              <h1 class="text-3xl font-bold text-gray-900">Profile Settings</h1>
+              <p class="mt-2 text-sm text-gray-600">Manage your personal information and preferences</p>
             </div>
-          <% end %>
-        </div>
-      </div>
-
-      <!-- Notification Preferences -->
-      <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
-        <div class="px-4 py-5 sm:px-6">
-          <h3 class="text-lg leading-6 font-medium text-gray-900">Notification Preferences</h3>
-          <p class="mt-1 max-w-2xl text-sm text-gray-500">Configure how you receive notifications</p>
-        </div>
-        <div class="border-t border-gray-200">
-          <div class="px-4 py-5 sm:p-6">
-            <div class="space-y-4">
-              <div class="flex items-center">
-                <%= check_box_tag :email_notifications, "1", @notification_preferences[:email_notifications], 
-                    class: "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" %>
-                <label for="email_notifications" class="ml-2 block text-sm text-gray-900">
-                  Email notifications
-                </label>
-              </div>
-              
-              <div class="flex items-center">
-                <%= check_box_tag :alert_notifications, "1", @notification_preferences[:alert_notifications], 
-                    class: "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" %>
-                <label for="alert_notifications" class="ml-2 block text-sm text-gray-900">
-                  Alert notifications
-                </label>
-              </div>
-              
-              <div class="flex items-center">
-                <%= check_box_tag :team_notifications, "1", @notification_preferences[:team_notifications], 
-                    class: "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" %>
-                <label for="team_notifications" class="ml-2 block text-sm text-gray-900">
-                  Team notifications
-                </label>
-              </div>
-              
-              <div class="flex justify-end">
-                <button type="button" onclick="updateNotificationPreferences()" 
-                        class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                  Update Preferences
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Two-Factor Authentication -->
-      <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
-        <div class="px-4 py-5 sm:px-6">
-          <h3 class="text-lg leading-6 font-medium text-gray-900">Two-Factor Authentication</h3>
-          <p class="mt-1 max-w-2xl text-sm text-gray-500">Secure your account with two-factor authentication</p>
-        </div>
-        <div class="border-t border-gray-200">
-          <div class="px-4 py-5 sm:p-6">
-            <div class="space-y-4">
-              <% if @user.mfa_enabled? %>
-                <div class="flex items-center justify-between p-4 bg-green-50 rounded-md">
-                  <div>
-                    <h4 class="text-sm font-medium text-green-800">Two-Factor Authentication Enabled</h4>
-                    <p class="text-sm text-green-700">Your account is protected with two-factor authentication.</p>
-                  </div>
-                  <%= button_to "Disable 2FA", users_disable_mfa_path, 
-                      method: :patch, 
-                      class: "inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500",
-                      data: { confirm: "Are you sure you want to disable two-factor authentication?" } %>
-                </div>
-                
-                <div class="flex items-center justify-between p-4 bg-blue-50 rounded-md">
-                  <div>
-                    <h4 class="text-sm font-medium text-blue-800">Regenerate Backup Codes</h4>
-                    <p class="text-sm text-blue-700">Generate new backup codes for emergency access.</p>
-                  </div>
-                  <%= button_to "Regenerate Codes", users_regenerate_backup_codes_path, 
-                      method: :patch, 
-                      class: "inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500",
-                      data: { confirm: "This will invalidate your current backup codes. Are you sure?" } %>
-                </div>
-              <% else %>
-                <div class="flex items-center justify-between p-4 bg-yellow-50 rounded-md">
-                  <div>
-                    <h4 class="text-sm font-medium text-yellow-800">Two-Factor Authentication Disabled</h4>
-                    <p class="text-sm text-yellow-700">Enable two-factor authentication to secure your account.</p>
-                  </div>
-                  <%= button_to "Enable 2FA", users_enable_mfa_path, 
-                      method: :patch, 
-                      class: "inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-yellow-700 bg-yellow-100 hover:bg-yellow-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500" %>
-                </div>
+            <div class="flex space-x-3">
+              <%= link_to dashboard_path, class: "inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Dashboard
               <% end %>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Change Password -->
-      <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
-        <div class="px-4 py-5 sm:px-6">
-          <h3 class="text-lg leading-6 font-medium text-gray-900">Change Password</h3>
-          <p class="mt-1 max-w-2xl text-sm text-gray-500">Update your account password</p>
-        </div>
-        <div class="border-t border-gray-200">
-          <%= form_with url: users_change_password_path, method: :patch, local: true do |form| %>
-            <div class="px-4 py-5 sm:p-6 space-y-6">
-              <div>
-                <%= form.label :current_password, "Current Password", class: "block text-sm font-medium text-gray-700" %>
-                <%= form.password_field :current_password, required: true, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
-              </div>
-              
+        <!-- Profile Form -->
+        <%= form_with model: @user, url: profile_path, method: :patch, class: "space-y-6" do |form| %>
+          <!-- Personal Information -->
+          <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+            <div class="px-4 py-5 sm:px-6">
+              <h3 class="text-lg leading-6 font-medium text-gray-900">Personal Information</h3>
+              <p class="mt-1 max-w-2xl text-sm text-gray-500">Update your personal details and preferences.</p>
+            </div>
+            <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
               <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <!-- First Name -->
                 <div>
-                  <%= form.label :password, "New Password", class: "block text-sm font-medium text-gray-700" %>
-                  <%= form.password_field :password, required: true, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+                  <%= form.label :first_name, class: "block text-sm font-medium text-gray-700" %>
+                  <%= form.text_field :first_name, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+                  <% if @user.errors[:first_name].any? %>
+                    <p class="mt-2 text-sm text-red-600"><%= @user.errors[:first_name].first %></p>
+                  <% end %>
                 </div>
-                
-                <div>
-                  <%= form.label :password_confirmation, "Confirm New Password", class: "block text-sm font-medium text-gray-700" %>
-                  <%= form.password_field :password_confirmation, required: true, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
-                </div>
-              </div>
-              
-              <div class="flex justify-end">
-                <%= form.submit "Change Password", class: "inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500" %>
-              </div>
-            </div>
-          <% end %>
-        </div>
-      </div>
 
-      <!-- Account Summary -->
-      <div class="bg-white shadow overflow-hidden sm:rounded-lg">
-        <div class="px-4 py-5 sm:px-6">
-          <h3 class="text-lg leading-6 font-medium text-gray-900">Account Summary</h3>
-          <p class="mt-1 max-w-2xl text-sm text-gray-500">Overview of your account information</p>
-        </div>
-        <div class="border-t border-gray-200">
-          <dl>
-            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt class="text-sm font-medium text-gray-500">Member Since</dt>
-              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                <%= @user.created_at.strftime("%B %d, %Y") %>
-              </dd>
+                <!-- Last Name -->
+                <div>
+                  <%= form.label :last_name, class: "block text-sm font-medium text-gray-700" %>
+                  <%= form.text_field :last_name, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+                  <% if @user.errors[:last_name].any? %>
+                    <p class="mt-2 text-sm text-red-600"><%= @user.errors[:last_name].first %></p>
+                  <% end %>
+                </div>
+
+                <!-- Email (Read-only) -->
+                <div>
+                  <%= form.label :email, class: "block text-sm font-medium text-gray-700" %>
+                  <%= form.email_field :email, disabled: true, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-500 sm:text-sm" %>
+                  <p class="mt-1 text-sm text-gray-500">Email cannot be changed</p>
+                </div>
+
+                <!-- Role (Read-only) -->
+                <div>
+                  <%= form.label :role, class: "block text-sm font-medium text-gray-700" %>
+                  <%= form.text_field :role, value: @user.role&.name&.titleize, disabled: true, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-500 sm:text-sm" %>
+                  <p class="mt-1 text-sm text-gray-500">Role is managed by administrators</p>
+                </div>
+
+                <!-- Timezone -->
+                <div>
+                  <%= form.label :timezone, class: "block text-sm font-medium text-gray-700" %>
+                  <%= form.select :timezone, ActiveSupport::TimeZone.all.map { |tz| [tz.name, tz.name] }, {}, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+                  <% if @user.errors[:timezone].any? %>
+                    <p class="mt-2 text-sm text-red-600"><%= @user.errors[:timezone].first %></p>
+                  <% end %>
+                </div>
+
+                <!-- Language -->
+                <div>
+                  <%= form.label :language, class: "block text-sm font-medium text-gray-700" %>
+                  <%= form.select :language, [['English', 'en'], ['Spanish', 'es'], ['French', 'fr'], ['German', 'de'], ['Italian', 'it'], ['Portuguese', 'pt']], {}, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+                  <% if @user.errors[:language].any? %>
+                    <p class="mt-2 text-sm text-red-600"><%= @user.errors[:language].first %></p>
+                  <% end %>
+                </div>
+              </div>
             </div>
-            
-            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt class="text-sm font-medium text-gray-500">Last Login</dt>
-              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                <%= @user.last_login_at ? @user.last_login_at.strftime("%B %d, %Y at %I:%M %p") : "Never" %>
-              </dd>
+          </div>
+
+          <!-- API Keys Summary -->
+          <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+            <div class="px-4 py-5 sm:px-6">
+              <h3 class="text-lg leading-6 font-medium text-gray-900">API Keys</h3>
+              <p class="mt-1 max-w-2xl text-sm text-gray-500">Manage your API keys for external integrations.</p>
             </div>
-            
-            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt class="text-sm font-medium text-gray-500">Login Count</dt>
-              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                <%= @user.login_count || 0 %>
-              </dd>
+            <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
+              <div class="grid grid-cols-1 gap-4 sm:grid-cols-4">
+                <div class="bg-blue-50 p-4 rounded-lg">
+                  <div class="text-2xl font-bold text-blue-600"><%= @api_key_summary[:total] %></div>
+                  <div class="text-sm text-blue-500">Total Keys</div>
+                </div>
+                <div class="bg-green-50 p-4 rounded-lg">
+                  <div class="text-2xl font-bold text-green-600"><%= @api_key_summary[:active] %></div>
+                  <div class="text-sm text-green-500">Active</div>
+                </div>
+                <div class="bg-yellow-50 p-4 rounded-lg">
+                  <div class="text-2xl font-bold text-yellow-600"><%= @api_key_summary[:inactive] %></div>
+                  <div class="text-sm text-yellow-500">Inactive</div>
+                </div>
+                <div class="bg-purple-50 p-4 rounded-lg">
+                  <div class="text-2xl font-bold text-purple-600"><%= @api_key_summary[:recent] %></div>
+                  <div class="text-sm text-purple-500">Recent</div>
+                </div>
+              </div>
+              <div class="mt-4">
+                <% if current_user.admin? %>
+                  <%= link_to companies_api_keys_path, class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                    </svg>
+                    Manage API Keys
+                  <% end %>
+                <% else %>
+                  <p class="text-sm text-gray-500">API key management is available to administrators only.</p>
+                <% end %>
+              </div>
             </div>
-            
-            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt class="text-sm font-medium text-gray-500">Team</dt>
-              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                <%= @team_summary ? @team_summary[:name] : "No Team" %>
-              </dd>
-            </div>
-            
-            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt class="text-sm font-medium text-gray-500">Role</dt>
-              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                <%= @user.role.name.humanize %>
-              </dd>
-            </div>
-            
-            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt class="text-sm font-medium text-gray-500">API Keys</dt>
-              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                <%= @api_key_summary[:active_keys] %> active keys
-              </dd>
-            </div>
-          </dl>
-        </div>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="flex justify-end">
+            <%= form.submit "Save Changes", class: "inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+          </div>
+        <% end %>
       </div>
     </div>
-  </div>
 
-  <script>
-  function updateNotificationPreferences() {
-    const formData = new FormData();
-    
-    // Collect checkbox values
-    const checkboxes = ['email_notifications', 'alert_notifications', 'team_notifications'];
-    checkboxes.forEach(name => {
-      const checkbox = document.getElementById(name);
-      if (checkbox && checkbox.checked) {
-        formData.append(name, checkbox.value);
-      }
-    });
-    
-    fetch('<%= users_profile_path %>', {
-      method: 'PATCH',
-      headers: {
-        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
-      },
-      body: formData
-    }).then(response => {
-      if (response.ok) {
-        window.location.reload();
-      } else {
-        alert('Failed to update notification preferences');
-      }
-    });
-  }
-  </script>
+    <script>
+    </script>
   </body>
 </html> 

@@ -2,15 +2,15 @@ module EventsHelper
   def severity_color(severity)
     case severity&.downcase
     when 'info'
-      'bg-blue-100'
+      'bg-blue-600'
     when 'warning'
-      'bg-yellow-100'
+      'bg-yellow-600'
     when 'error'
-      'bg-red-100'
+      'bg-red-600'
     when 'critical'
-      'bg-purple-100'
+      'bg-purple-600'
     else
-      'bg-gray-100'
+      'bg-gray-600'
     end
   end
 
@@ -75,6 +75,68 @@ module EventsHelper
       '<svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>'.html_safe
     else
       '<svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'.html_safe
+    end
+  end
+
+  def generate_story_summary(events)
+    return "No events to summarize" if events.empty?
+    
+    event_types = events.map(&:event_type).uniq
+    actors = events.map { |e| e.actor_display }.uniq
+    duration = distance_of_time_in_words(events.first.timestamp, events.last.timestamp)
+    
+    summary_parts = []
+    summary_parts << "#{events.count} events"
+    summary_parts << "#{event_types.count} different types"
+    summary_parts << "#{actors.count} actors involved"
+    summary_parts << "over #{duration}"
+    
+    summary_parts.join(", ")
+  end
+
+  def generate_narrative_description(events)
+    return "No narrative available" if events.empty?
+    
+    first_event = events.first
+    last_event = events.last
+    
+    case events.count
+    when 1
+      "Single event: #{first_event.action} by #{first_event.actor_display}"
+    when 2
+      "Two-step process: #{first_event.action} → #{last_event.action}"
+    when 3..5
+      "Multi-step workflow: #{events.count} connected events"
+    else
+      "Complex workflow: #{events.count} events in sequence"
+    end
+  end
+
+  def story_flow_badge_color(event_count)
+    case event_count
+    when 1
+      'bg-gray-100 text-gray-800'
+    when 2..3
+      'bg-blue-100 text-blue-800'
+    when 4..6
+      'bg-green-100 text-green-800'
+    else
+      'bg-purple-100 text-purple-800'
+    end
+  end
+
+  def severity_icon(severity)
+    case severity&.downcase
+    when 'info'
+      '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'.html_safe
+    when 'warning'
+      '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path></svg>'.html_safe
+    when 'error'
+      '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'.html_safe
+    when 'critical'
+      '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path></svg>'.html_safe
+    else
+      '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'.html_safe
     end
   end
 end

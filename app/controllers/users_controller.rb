@@ -2,7 +2,7 @@ class UsersController < ApplicationController
   before_action :set_user, only: [:show, :edit, :update, :destroy, :deactivate, :activate]
 
   def index
-    @users = current_user.company.users.includes(:role, :team).order(:first_name)
+    @users = current_user.company.users.order(:first_name)
   end
 
   def show
@@ -61,7 +61,14 @@ class UsersController < ApplicationController
   private
 
   def user_params
-    params.require(:user).permit(:email, :first_name, :last_name, :role_id, :team_id)
+    params.require(:user).permit(
+      :email, 
+      :first_name, 
+      :last_name, 
+      :role_id,
+      :timezone,
+      :language
+    )
   end
 
   def set_user

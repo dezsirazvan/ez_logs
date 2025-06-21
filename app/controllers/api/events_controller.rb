@@ -21,10 +21,9 @@ class Api::EventsController < ApplicationController
     @event.timestamp ||= Time.current
 
     if @event.save
-      log_activity('event_created', @event)
-      respond_with_json(@event, status: :created)
+      render json: @event, status: :created
     else
-      respond_with_error(@event.errors.full_messages.join(', '), status: :unprocessable_entity)
+      render json: @event.errors, status: :unprocessable_entity
     end
   end
 

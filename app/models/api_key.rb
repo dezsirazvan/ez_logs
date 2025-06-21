@@ -3,6 +3,7 @@ class ApiKey < ApplicationRecord
 
   validates :token, presence: true, uniqueness: true
   validates :is_active, inclusion: { in: [true, false] }
+  validates :display_name, presence: true
 
   # Callbacks
   before_validation :generate_token, on: :create
@@ -10,6 +11,7 @@ class ApiKey < ApplicationRecord
 
   scope :active, -> { where(revoked_at: nil) }
   scope :revoked, -> { where.not(revoked_at: nil) }
+  scope :expired, -> { where.not(revoked_at: nil) }
   scope :recent, -> { order(created_at: :desc) }
 
   # Default permissions
@@ -23,7 +25,7 @@ class ApiKey < ApplicationRecord
   PERMISSION_TYPES = %w[read write create update delete].freeze
 
   # Resource types
-  RESOURCE_TYPES = %w[events alerts analytics users teams].freeze
+  RESOURCE_TYPES = %w[events alerts analytics users].freeze
 
   def self.authenticate(token)
     active.find_by(token: token)
@@ -67,11 +69,13 @@ class ApiKey < ApplicationRecord
     resource_permissions.include?(action.to_s) || resource_permissions.include?('*')
   end
 
-  def can_read?(resource)
+  def can_read?(resource = nil)
+    return can_read if resource.nil?
     has_permission?(resource, 'read')
   end
 
-  def can_write?(resource)
+  def can_write?(resource = nil)
+    return can_write if resource.nil?
     has_permission?(resource, 'write')
   end
 
@@ -83,7 +87,8 @@ class ApiKey < ApplicationRecord
     has_permission?(resource, 'update')
   end
 
-  def can_delete?(resource)
+  def can_delete?(resource = nil)
+    return can_delete if resource.nil?
     has_permission?(resource, 'delete')
   end
 
@@ -92,7 +97,11 @@ class ApiKey < ApplicationRecord
   end
 
   def display_name
-    name.presence || "API Key #{id}"
+    super.presence || "API Key #{id}"
+  end
+
+  def key
+    token
   end
 
   def masked_token

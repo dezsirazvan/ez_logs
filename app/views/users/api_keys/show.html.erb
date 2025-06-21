@@ -1,0 +1,119 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <div class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center py-6">
+        <div class="flex items-center space-x-4">
+          <%= link_to users_api_keys_path, class: "text-gray-400 hover:text-gray-600" do %>
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+          <% end %>
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900">API Key Created</h1>
+            <p class="mt-1 text-sm text-gray-500">Your new API key has been generated successfully</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="bg-white shadow rounded-lg">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-medium text-gray-900">API Key Details</h3>
+      </div>
+      
+      <div class="p-6 space-y-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-700">API Key Name</label>
+          <p class="mt-1 text-sm text-gray-900"><%= @api_key.display_name %></p>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">API Key</label>
+          <div class="mt-1 relative">
+            <input type="text" value="<%= @api_key.token %>" readonly class="block w-full pr-10 border-gray-300 rounded-md shadow-sm bg-gray-50 text-sm font-mono" id="api-key-display">
+            <button type="button" onclick="copyApiKey()" class="absolute inset-y-0 right-0 pr-3 flex items-center">
+              <svg class="h-5 w-5 text-gray-400 hover:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+              </svg>
+            </button>
+          </div>
+          <p class="mt-2 text-sm text-gray-500">Click the copy icon to copy your API key to clipboard</p>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Permissions</label>
+          <div class="mt-2 space-y-2">
+            <% if @api_key.can_read? %>
+              <div class="flex items-center">
+                <svg class="h-4 w-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                </svg>
+                <span class="ml-2 text-sm text-gray-700">Read access</span>
+              </div>
+            <% end %>
+            <% if @api_key.can_write? %>
+              <div class="flex items-center">
+                <svg class="h-4 w-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                </svg>
+                <span class="ml-2 text-sm text-gray-700">Write access</span>
+              </div>
+            <% end %>
+            <% if @api_key.can_delete? %>
+              <div class="flex items-center">
+                <svg class="h-4 w-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                </svg>
+                <span class="ml-2 text-sm text-gray-700">Delete access</span>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="bg-red-50 border border-red-200 rounded-md p-4">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+              </svg>
+            </div>
+            <div class="ml-3">
+              <h3 class="text-sm font-medium text-red-800">Security Warning</h3>
+              <div class="mt-2 text-sm text-red-700">
+                <p>This is the only time you'll be able to see your API key. Make sure to copy it now and store it securely. You won't be able to retrieve it later.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-end space-x-3">
+          <%= link_to "Back to API Keys", users_api_keys_path, class: "bg-blue-600 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function copyApiKey() {
+  const apiKeyInput = document.getElementById('api-key-display');
+  apiKeyInput.select();
+  apiKeyInput.setSelectionRange(0, 99999); // For mobile devices
+  
+  try {
+    document.execCommand('copy');
+    // Show success message
+    const button = event.target.closest('button');
+    const originalHTML = button.innerHTML;
+    button.innerHTML = '<svg class="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>';
+    setTimeout(() => {
+      button.innerHTML = originalHTML;
+    }, 2000);
+  } catch (err) {
+    console.error('Failed to copy: ', err);
+  }
+}
+</script> 

@@ -1,10 +1,6 @@
 class Invitation < ApplicationRecord
   # Associations
-  belongs_to :company
-  belongs_to :team
-  belongs_to :role
   belongs_to :invited_by, class_name: "User"
-  has_many :audit_logs, as: :auditable, dependent: :destroy
 
   # Validations
   validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
@@ -52,17 +48,6 @@ class Invitation < ApplicationRecord
     return false unless can_be_accepted?
 
     update(status: "accepted")
-    team.add_member(user, role)
-
-    audit_logs.create!(
-      user: user,
-      action: "invitation_accepted",
-      metadata: {
-        invitation_id: id,
-        team_name: team.name,
-        role_name: role.name
-      }
-    )
 
     true
   end
@@ -72,15 +57,6 @@ class Invitation < ApplicationRecord
 
     update(status: "declined")
 
-    audit_logs.create!(
-      user: invited_by,
-      action: "invitation_declined",
-      metadata: {
-        invitation_id: id,
-        team_name: team.name
-      }
-    )
-
     true
   end
 
@@ -88,15 +64,6 @@ class Invitation < ApplicationRecord
     return false unless status == "pending"
 
     update(status: "expired")
-
-    audit_logs.create!(
-      user: invited_by,
-      action: "invitation_expired",
-      metadata: {
-        invitation_id: id,
-        team_name: team.name
-      }
-    )
 
     true
   end
@@ -110,15 +77,6 @@ class Invitation < ApplicationRecord
     )
 
     send_invitation_email
-
-    audit_logs.create!(
-      user: invited_by,
-      action: "invitation_resent",
-      metadata: {
-        invitation_id: id,
-        team_name: team.name
-      }
-    )
 
     true
   end
@@ -186,15 +144,6 @@ class Invitation < ApplicationRecord
   def log_status_change
     return unless saved_change_to_status?
 
-    audit_logs.create!(
-      user: invited_by,
-      action: "invitation_status_changed",
-      metadata: {
-        invitation_id: id,
-        old_status: saved_change_to_status[0],
-        new_status: saved_change_to_status[1],
-        team_name: team.name
-      }
-    )
+    # No audit_logs to create or log status change
   end
 end

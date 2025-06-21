@@ -1,20 +1,47 @@
 class DashboardController < ApplicationController
   before_action :set_user_and_company
+  helper_method :get_story_flows
 
   def index
+    # Ensure we have a valid company
+    company = current_user.company
+    return redirect_to root_path, alert: "Company not found" unless company
+
     @event_stats = {
-      total_events: current_user.company.events.count,
-      today_events: current_user.company.events.where(timestamp: Date.current.beginning_of_day..Date.current.end_of_day).count,
-      this_week_events: current_user.company.events.where(timestamp: 1.week.ago..Time.current).count,
-      active_sessions: current_user.company.users.where('last_sign_in_at > ?', 1.hour.ago).count
+      total_events: company.events.count,
+      today_events: company.events.where(timestamp: Date.current.beginning_of_day..Date.current.end_of_day).count,
+      this_week_events: company.events.where(timestamp: 1.week.ago..Time.current).count,
+      active_sessions: company.users.where('last_sign_in_at > ?', 1.hour.ago).count,
+      correlated_events: company.events.where.not(correlation_id: [nil, '']).count,
+      error_events: company.events.where("action ILIKE ? OR action ILIKE ? OR action ILIKE ?", "%error%", "%exception%", "%fail%").count
     }
-    @recent_events = current_user.company.events.includes(:company).recent.limit(10)
+    
+    # Get recent events for the dashboard
+    @recent_events = company.events.includes(:company).order(timestamp: :desc).limit(10)
+    
+    # Get recent users for the dashboard
+    @recent_users = company.users.includes(:role).order(created_at: :desc).limit(5)
+    
+    # Get story flows (correlated events) for the dashboard
+    @story_flows = get_story_flows
+  rescue => e
+    Rails.logger.error "Dashboard index error: #{e.message}"
+    @event_stats = {
+      total_events: 0,
+      today_events: 0,
+      this_week_events: 0,
+      active_sessions: 0,
+      correlated_events: 0,
+      error_events: 0
+    }
+    @recent_events = []
+    @recent_users = []
+    @story_flows = []
   end
 
   def profile
+    @user = current_user
     @recent_events = current_user.company.events.includes(:company).recent.limit(5)
-    @api_key_summary = current_user.api_key_summary
-    @team_summary = current_user.team_summary
   end
 
   def settings
@@ -23,27 +50,80 @@ class DashboardController < ApplicationController
     @recent_events = current_user.company.events.order(timestamp: :desc).limit(10)
   end
 
-  def events
-    # Permit parameters for filtering and pagination
-    @permitted_params = params.permit(:q, :event_type, :date_range, :actor_id, :subject_id, :page, :commit, :actor_type, :correlation_status)
+  def stories
+    # Get all correlation IDs that have multiple events
+    correlation_ids = @company.events
+                              .where.not(correlation_id: [nil, ''])
+                              .group(:correlation_id)
+                              .having('COUNT(*) > 1')
+                              .pluck(:correlation_id)
     
-    @events = build_event_query
-    @event_stats = build_event_stats(@events)
+    @stories = correlation_ids.map do |correlation_id|
+      events = @company.events.where(correlation_id: correlation_id).order(:timestamp)
+      first_event = events.first
+      last_event = events.last
+      duration = first_event && last_event ? (last_event.timestamp - first_event.timestamp) : 0
+      
+      {
+        correlation_id: correlation_id,
+        events: events,
+        event_count: events.count,
+        first_event: first_event,
+        last_event: last_event,
+        duration: duration,
+        actors: events.map { |e| e.actor_display }.uniq.compact,
+        event_types: events.map(&:event_type).uniq.compact
+      }
+    end.sort_by { |story| -story[:event_count] }
     
-    # Convert to hash for easier manipulation in views
-    @filters = @permitted_params.to_h
+    # Calculate totals before pagination
+    total_events = @stories.sum { |s| s[:event_count] }
+    total_actors = @stories.flat_map { |s| s[:actors] }.uniq.length
+    avg_duration = @stories.any? ? @stories.sum { |s| s[:duration] } / @stories.length : 0
     
-    respond_to do |format|
-      format.html
-      format.csv { send_event_csv(@events) }
-    end
+    # Implement pagination for the array
+    page = (params[:page] || 1).to_i
+    per_page = 12
+    total_pages = (@stories.length.to_f / per_page).ceil
+    
+    @stories = @stories.slice((page - 1) * per_page, per_page) || []
+    
+    # Add pagination metadata
+    @pagination = {
+      current_page: page,
+      total_pages: total_pages,
+      total_count: correlation_ids.length,
+      per_page: per_page,
+      has_next: page < total_pages,
+      has_prev: page > 1,
+      total_events: total_events,
+      total_actors: total_actors,
+      avg_duration: avg_duration
+    }
   end
 
-  def team
-    @teams = current_user.company.teams.includes(:users, :owner)
-    @company_users = current_user.company.users.includes(:role, :team).order(:first_name)
-    @recent_company_events = build_company_event_query
-    @team_stats = build_team_stats
+  def story
+    @correlation_id = params[:id]
+    @events = @company.events.where(correlation_id: @correlation_id).order(:timestamp)
+    
+    if @events.empty?
+      redirect_to stories_path, alert: "Story not found"
+      return
+    end
+    
+    first_event = @events.first
+    last_event = @events.last
+    duration = first_event && last_event ? (last_event.timestamp - first_event.timestamp) : nil
+    
+    @story_summary = {
+      correlation_id: @correlation_id,
+      event_count: @events.count,
+      first_event: first_event,
+      last_event: last_event,
+      duration: duration,
+      actors: @events.map { |e| e.actor_display }.uniq.compact,
+      event_types: @events.map(&:event_type).uniq.compact
+    }
   end
 
   private
@@ -51,6 +131,85 @@ class DashboardController < ApplicationController
   def set_user_and_company
     @user = current_user
     @company = current_user.company
+  end
+
+  def get_story_flows
+    # Get correlation IDs with multiple events
+    correlation_ids = @company.events
+                              .where.not(correlation_id: [nil, ''])
+                              .group(:correlation_id)
+                              .having('COUNT(*) > 1')
+                              .pluck(:correlation_id)
+                              .first(5) # Limit to 5 for dashboard
+    
+    correlation_ids.map do |correlation_id|
+      events = @company.events.where(correlation_id: correlation_id).order(:timestamp)
+      first_event = events.first
+      last_event = events.last
+      duration = first_event && last_event ? (last_event.timestamp - first_event.timestamp) : 0
+      
+      {
+        correlation_id: correlation_id,
+        events: events,
+        event_count: events.count,
+        first_event: first_event,
+        last_event: last_event,
+        duration: duration,
+        actors: events.map { |e| e.actor_display }.uniq.compact,
+        event_types: events.map(&:event_type).uniq.compact
+      }
+    end
+  end
+
+  def apply_event_filters(events)
+    events = events.where(event_type: @filters[:event_type]) if @filters[:event_type].present?
+    
+    # Apply date filter if specified
+    if @filters[:date_range].present?
+      date_filter = date_range_filter
+      events = events.where(timestamp: date_filter) if date_filter
+    end
+    
+    # Filter by actor type if specified
+    if @filters[:actor_type].present?
+      events = events.where(Arel.sql("actor->>'type' = ?"), @filters[:actor_type])
+    end
+    
+    # Filter by correlation status if specified
+    if @filters[:correlation_status].present?
+      case @filters[:correlation_status]
+      when 'with_correlation'
+        events = events.where.not(correlation_id: [nil, ''])
+      when 'without_correlation'
+        events = events.where(correlation_id: [nil, ''])
+      end
+    end
+    
+    # Global search
+    if @filters[:q].present?
+      q = @filters[:q].downcase
+      events = events.where(
+        "LOWER(action) LIKE :q OR LOWER(metadata::text) LIKE :q OR LOWER(actor::text) LIKE :q OR LOWER(subject::text) LIKE :q OR LOWER(correlation_id) LIKE :q",
+        q: "%#{q}%"
+      )
+    end
+    
+    events
+  end
+
+  def date_range_filter
+    case @filters[:date_range]
+    when '24h'
+      24.hours.ago..Time.current
+    when '7d'
+      7.days.ago..Time.current
+    when '30d'
+      30.days.ago..Time.current
+    when '90d'
+      90.days.ago..Time.current
+    else
+      nil
+    end
   end
 
   def build_event_query
@@ -81,58 +240,6 @@ class DashboardController < ApplicationController
     events.limit(per_page).offset((page - 1) * per_page)
   end
 
-  def apply_event_filters(events)
-    events = events.where(event_type: @permitted_params[:event_type]) if @permitted_params[:event_type].present?
-    
-    # Only apply date filter if a specific range is selected
-    if @permitted_params[:date_range].present?
-      date_filter = date_range_filter
-      events = events.where(timestamp: date_filter) if date_filter
-    end
-    
-    # Filter by actor type if specified
-    if @permitted_params[:actor_type].present?
-      events = events.where("actor->>'type' = ?", @permitted_params[:actor_type])
-    end
-    
-    # Filter by correlation status if specified
-    if @permitted_params[:correlation_status].present?
-      case @permitted_params[:correlation_status]
-      when 'with_correlation'
-        events = events.where.not(correlation_id: [nil, ''])
-      when 'without_correlation'
-        events = events.where(correlation_id: [nil, ''])
-      end
-    end
-    
-    # Filter by actor if specified
-    if @permitted_params[:actor_id].present?
-      events = events.where("actor->>'id' = ?", @permitted_params[:actor_id])
-    end
-    
-    # Filter by subject if specified
-    if @permitted_params[:subject_id].present?
-      events = events.where("subject->>'id' = ?", @permitted_params[:subject_id])
-    end
-    
-    events
-  end
-
-  def date_range_filter
-    case @permitted_params[:date_range]
-    when '24h'
-      24.hours.ago..Time.current
-    when '7d'
-      7.days.ago..Time.current
-    when '30d'
-      30.days.ago..Time.current
-    when '90d'
-      90.days.ago..Time.current
-    else
-      nil # No filter when no date range is specified
-    end
-  end
-
   def build_event_stats(events)
     base_query = events.except(:limit, :offset, :order)
     
@@ -152,15 +259,6 @@ class DashboardController < ApplicationController
          .limit(10)
   end
 
-  def build_team_stats
-    {
-      total_events: current_user.company.events.count,
-      total_alerts: current_user.company.alerts.count,
-      events_this_month: current_user.company.events.where(timestamp: 1.month.ago..Time.current).count,
-      total_teams: current_user.company.teams.count,
-      total_members: current_user.company.users.count
-    }
-  end
 
   def send_event_csv(events)
     csv_data = generate_event_csv(events)

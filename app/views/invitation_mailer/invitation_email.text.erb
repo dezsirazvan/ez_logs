@@ -1,0 +1,26 @@
+You're Invited to Join <%= @company.name %>!
+
+Hi there!
+
+<%= @invited_by.full_name %> has invited you to join <%= @company.name %>.
+
+Invitation Details:
+- Company: <%= @company.name %>
+- Role: <%= @role.name.titleize %>
+- Invited by: <%= @invited_by.full_name %>
+
+To accept this invitation, please click the following link:
+<%= accept_invitation_url(@invitation.token) %>
+
+If you don't want to accept this invitation, you can decline it here:
+<%= decline_invitation_url(@invitation.token) %>
+
+This invitation will expire in 7 days.
+
+If you have any questions about this invitation, please contact <%= @invited_by.full_name %> at <%= @invited_by.email %>.
+
+Welcome to the company! 🎉
+
+---
+This invitation was sent from <%= @company.name %>
+If you didn't expect this invitation, you can safely ignore this email. 

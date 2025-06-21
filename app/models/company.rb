@@ -1,13 +1,10 @@
 class Company < ApplicationRecord
   # Associations
   has_many :users, dependent: :nullify
-  has_many :teams, dependent: :nullify
   has_many :events, dependent: :nullify
   has_many :api_keys, dependent: :nullify
-  has_many :audit_logs, dependent: :nullify
   has_many :alerts, dependent: :nullify
   has_many :invitations, dependent: :nullify
-  has_many :activities, dependent: :nullify
 
   # Validations
   validates :name, presence: true, length: { minimum: 2, maximum: 100 }
@@ -19,48 +16,49 @@ class Company < ApplicationRecord
   scope :active, -> { where(is_active: true) }
   scope :inactive, -> { where(is_active: false) }
   scope :ordered, -> { order(:name) }
+  scope :recent, -> { order(created_at: :desc) }
+
+  # Default values
+  attribute :is_active, :boolean, default: true
 
   # Instance methods
-  def user_count
-    users.count
+  def display_name
+    name.presence || domain.presence || "Company #{id}"
   end
 
-  def team_count
-    teams.count
+  def active?
+    is_active
+  end
+
+  def deactivate!
+    update!(is_active: false)
+  end
+
+  def activate!
+    update!(is_active: true)
+  end
+
+  def user_count
+    users.count
   end
 
   def event_count
     events.count
   end
 
-  def alert_count
-    alerts.count
-  end
-
   def api_key_count
     api_keys.count
   end
 
-  def audit_log_count
-    audit_logs.count
+  def alert_count
+    alerts.count
   end
 
-  def analytics_summary
-    {
-      users: user_count,
-      teams: team_count,
-      events: event_count,
-      alerts: alert_count,
-      api_keys: api_key_count,
-      audit_logs: audit_log_count
-    }
+  def active_user_count
+    users.active.count
   end
 
-  def last_activity
-    [
-      users.maximum(:last_login_at),
-      events.maximum(:created_at),
-      audit_logs.maximum(:created_at)
-    ].compact.max
+  def locked_user_count
+    users.locked.count
   end
 end 

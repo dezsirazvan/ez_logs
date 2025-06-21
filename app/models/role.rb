@@ -14,7 +14,6 @@ class Role < ApplicationRecord
 
   # Callbacks
   before_validation :set_default_permissions
-  after_save :log_role_changes
 
   # Class methods
   def self.admin
@@ -280,18 +279,5 @@ class Role < ApplicationRecord
     when "read_only"
       self.permissions = self.class.read_only_permissions
     end
-  end
-
-  def log_role_changes
-    return unless saved_changes.any?
-
-    AuditLog.create!(
-      user: Current.user,
-      action: "role_updated",
-      metadata: {
-        role_name: name,
-        changes: saved_changes.except("updated_at")
-      }
-    ) if Current.user.present?
   end
 end

@@ -17,6 +17,14 @@
         <div class="flex space-x-3">
           <%= link_to "Back to Events", events_path, 
               class: "inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+          <% if @event.correlation_id.present? %>
+            <%= link_to dashboard_story_path(@event.correlation_id), class: "inline-flex items-center px-4 py-2 border border-indigo-300 rounded-md shadow-sm text-sm font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors" do %>
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+              </svg>
+              View Story
+            <% end %>
+          <% end %>
         </div>
       </div>
     </div>
@@ -171,22 +179,34 @@
             <div class="bg-white shadow rounded-lg">
               <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
                 <div>
-                  <h3 class="text-lg font-medium text-gray-900">Correlation Flow</h3>
-                  <p class="text-sm text-gray-500">Events with the same correlation ID (<span class="font-mono"><%= @event.correlation_id %></span>)</p>
-                  <p class="text-xs text-gray-400 mt-1">Total Events: <%= all_correlated_events.count %> | Actors: <%= all_correlated_events.map { |e| e.actor_display }.uniq.size %> | Types: <%= all_correlated_events.map(&:event_type).uniq.map(&:humanize).join(', ') %></p>
+                  <h3 class="text-lg font-medium text-gray-900">📖 Story Timeline</h3>
+                  <p class="text-sm text-gray-500">Complete narrative flow with correlation ID: <span class="font-mono bg-gray-100 px-2 py-1 rounded"><%= @event.correlation_id %></span></p>
+                  <div class="flex items-center space-x-4 mt-2 text-xs text-gray-400">
+                    <span>📊 Total Events: <strong class="text-gray-600"><%= all_correlated_events.count %></strong></span>
+                    <span>👥 Actors: <strong class="text-gray-600"><%= all_correlated_events.map { |e| e.actor_display }.uniq.size %></strong></span>
+                    <span>🏷️ Types: <strong class="text-gray-600"><%= all_correlated_events.map(&:event_type).uniq.map(&:humanize).join(', ') %></strong></span>
+                    <span>⏱️ Duration: <strong class="text-gray-600"><%= distance_of_time_in_words(all_correlated_events.first.timestamp, all_correlated_events.last.timestamp) %></strong></span>
+                  </div>
                 </div>
                 <div class="flex space-x-2">
-                  <button onclick="navigator.clipboard.writeText(JSON.stringify(<%= raw @event.to_json %>, null, 2))" class="text-xs text-green-600 hover:underline" title="Copy event JSON for GPT">Translate with GPT</button>
+                  <button onclick="navigator.clipboard.writeText(JSON.stringify(<%= raw all_correlated_events.map(&:to_json) %>, null, 2))" class="text-xs text-green-600 hover:underline bg-green-50 px-2 py-1 rounded" title="Copy all events JSON for GPT">📋 Copy Full Story for GPT</button>
                 </div>
               </div>
               <div class="divide-y divide-gray-200">
                 <% all_correlated_events.each_with_index do |correlated_event, idx| %>
                   <div class="px-6 py-4 hover:bg-gray-50 transition-colors duration-150 <%= 'bg-blue-50 border-l-4 border-blue-500' if correlated_event.id == @event.id %>">
                     <div class="flex items-start space-x-4">
-                      <!-- Step Number -->
+                      <!-- Step Number with Current Event Indicator -->
                       <div class="flex-shrink-0">
-                        <div class="w-8 h-8 rounded-full flex items-center justify-center <%= event_type_color_class(correlated_event.event_type) %>" title="<%= correlated_event.event_type.humanize %>">
-                          <span class="font-bold text-white"><%= idx + 1 %></span>
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center <%= event_type_color_class(correlated_event.event_type) %> relative" title="<%= correlated_event.event_type.humanize %>">
+                          <span class="font-bold text-white text-sm"><%= idx + 1 %></span>
+                          <% if correlated_event.id == @event.id %>
+                            <div class="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
+                              <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                              </svg>
+                            </div>
+                          <% end %>
                         </div>
                       </div>
                       <!-- Event Content -->
@@ -200,7 +220,7 @@
                               <%= correlated_event.event_type.humanize %>
                             </span>
                             <% if correlated_event.id == @event.id %>
-                              <span class="ml-2 px-2 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800" title="Current Event">Current Event</span>
+                              <span class="ml-2 px-2 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800" title="Current Event">📍 Current Event</span>
                             <% end %>
                           </div>
                           <div class="text-sm text-gray-500">
@@ -208,7 +228,18 @@
                           </div>
                         </div>
                         <div class="text-xs text-gray-500 mt-1">
-                          <span title="Actor"><%= correlated_event.actor_display %></span> | <span title="Subject"><%= correlated_event.subject_display %></span>
+                          <span title="Actor">👤 <%= correlated_event.actor_display %></span> | <span title="Subject">🎯 <%= correlated_event.subject_display %></span>
+                          <% if correlated_event.metadata.present? && correlated_event.metadata.is_a?(Hash) %>
+                            <% if correlated_event.metadata['status'].present? %>
+                              | <span class="text-green-600">✅ <%= correlated_event.metadata['status'] %></span>
+                            <% end %>
+                            <% if correlated_event.metadata['duration'].present? %>
+                              | <span class="text-blue-600">⏱️ <%= number_with_precision(correlated_event.metadata['duration'], precision: 3) %>s</span>
+                            <% end %>
+                            <% if correlated_event.metadata['error'].present? %>
+                              | <span class="text-red-600">❌ <%= correlated_event.metadata['error'] %></span>
+                            <% end %>
+                          <% end %>
                         </div>
                       </div>
                     </div>
@@ -232,8 +263,16 @@
                 class: "w-full inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
             
             <% if @event.correlation_id.present? %>
-              <%= link_to "View Correlation Flow", events_path(correlation_id: @event.correlation_id), 
-                  class: "w-full inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+              <% correlated_events_count = Event.where(company: current_user.company, correlation_id: @event.correlation_id).count %>
+              <% if correlated_events_count > 1 %>
+                <%= link_to dashboard_story_path(@event.correlation_id), 
+                    class: "w-full inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500" do %>
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656 0l-1.102 1.101"></path>
+                  </svg>
+                  View Story (<%= correlated_events_count %> events)
+                <% end %>
+              <% end %>
             <% end %>
           </div>
         </div>

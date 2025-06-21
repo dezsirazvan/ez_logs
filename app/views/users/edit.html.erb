@@ -1,0 +1,99 @@
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-4xl mx-auto py-6 sm:px-6 lg:px-8">
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+          <%= link_to users_path, class: "text-gray-400 hover:text-gray-600" do %>
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+          <% end %>
+          <div>
+            <h1 class="text-3xl font-bold text-gray-900">Edit User</h1>
+            <p class="mt-1 text-sm text-gray-600">Update user information and settings</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Form -->
+    <div class="bg-white shadow rounded-lg">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-medium text-gray-900">User Information</h3>
+      </div>
+      
+      <%= form_with model: @user, local: true, class: "px-6 py-4" do |f| %>
+        <% if @user.errors.any? %>
+          <div class="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                </svg>
+              </div>
+              <div class="ml-3">
+                <h3 class="text-sm font-medium text-red-800">
+                  There were <%= pluralize(@user.errors.count, "error") %> with your submission:
+                </h3>
+                <div class="mt-2 text-sm text-red-700">
+                  <ul class="list-disc pl-5 space-y-1">
+                    <% @user.errors.full_messages.each do |message| %>
+                      <li><%= message %></li>
+                    <% end %>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div>
+            <%= f.label :first_name, class: "block text-sm font-medium text-gray-700" %>
+            <%= f.text_field :first_name, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500", placeholder: "First name" %>
+          </div>
+
+          <div>
+            <%= f.label :last_name, class: "block text-sm font-medium text-gray-700" %>
+            <%= f.text_field :last_name, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500", placeholder: "Last name" %>
+          </div>
+
+          <div class="sm:col-span-2">
+            <%= f.label :email, class: "block text-sm font-medium text-gray-700" %>
+            <%= f.email_field :email, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500", placeholder: "user@example.com" %>
+          </div>
+
+          <div>
+            <%= f.label :role_id, "Role", class: "block text-sm font-medium text-gray-700" %>
+            <%= f.select :role_id, 
+                options_from_collection_for_select(Role.all, :id, :name, @user.role_id), 
+                { prompt: "Choose a role..." }, 
+                { class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" } %>
+          </div>
+
+          <div>
+            <%= f.label :timezone, class: "block text-sm font-medium text-gray-700" %>
+            <%= f.select :timezone, 
+                options_for_select(ActiveSupport::TimeZone.all.map { |tz| [tz.name, tz.name] }, @user.timezone), 
+                { prompt: "Choose timezone..." }, 
+                { class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" } %>
+          </div>
+
+          <div>
+            <%= f.label :language, class: "block text-sm font-medium text-gray-700" %>
+            <%= f.select :language, 
+                options_for_select([["English", "en"], ["Spanish", "es"], ["French", "fr"], ["German", "de"]], @user.language), 
+                { prompt: "Choose language..." }, 
+                { class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" } %>
+          </div>
+        </div>
+
+        <div class="mt-8 flex items-center justify-end space-x-3">
+          <%= link_to "Cancel", users_path, class: "px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500" %>
+          <%= f.submit "Update User", class: "px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div> 

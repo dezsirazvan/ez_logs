@@ -1,0 +1,109 @@
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="bg-white shadow rounded-lg">
+      <!-- Header -->
+      <div class="px-6 py-4 border-b border-gray-200">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900">Create New API Key</h1>
+            <p class="mt-1 text-sm text-gray-600">Generate a new API key for your company</p>
+          </div>
+          <%= link_to users_api_keys_path, class: "inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            Back to API Keys
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Form -->
+      <div class="px-6 py-6">
+        <%= form_with model: @api_key, url: users_api_keys_path, local: true, class: "space-y-6" do |f| %>
+          <% if @api_key.errors.any? %>
+            <div class="bg-red-50 border border-red-200 rounded-md p-4">
+              <div class="flex">
+                <div class="flex-shrink-0">
+                  <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                  </svg>
+                </div>
+                <div class="ml-3">
+                  <h3 class="text-sm font-medium text-red-800">
+                    There were <%= pluralize(@api_key.errors.count, "error") %> with your submission:
+                  </h3>
+                  <div class="mt-2 text-sm text-red-700">
+                    <ul class="list-disc pl-5 space-y-1">
+                      <% @api_key.errors.full_messages.each do |message| %>
+                        <li><%= message %></li>
+                      <% end %>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% end %>
+
+          <!-- Name Field -->
+          <div>
+            <%= f.label :name, class: "block text-sm font-medium text-gray-700" %>
+            <div class="mt-1">
+              <%= f.text_field :name, class: "shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md", placeholder: "e.g., Production API Key" %>
+            </div>
+            <p class="mt-2 text-sm text-gray-500">Give your API key a descriptive name to help you identify it later.</p>
+          </div>
+
+          <!-- Description Field -->
+          <div>
+            <%= f.label :description, class: "block text-sm font-medium text-gray-700" %>
+            <div class="mt-1">
+              <%= f.text_area :description, rows: 3, class: "shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md", placeholder: "Optional description of what this API key is used for" %>
+            </div>
+          </div>
+
+          <!-- Permissions -->
+          <div>
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Permissions</h3>
+            <div class="space-y-4">
+              <div class="flex items-start">
+                <div class="flex items-center h-5">
+                  <%= f.check_box :can_read_events, class: "focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded" %>
+                </div>
+                <div class="ml-3 text-sm">
+                  <%= f.label :can_read_events, class: "font-medium text-gray-700" %>
+                  <p class="text-gray-500">Allow reading events from the API</p>
+                </div>
+              </div>
+              
+              <div class="flex items-start">
+                <div class="flex items-center h-5">
+                  <%= f.check_box :can_write_events, class: "focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded" %>
+                </div>
+                <div class="ml-3 text-sm">
+                  <%= f.label :can_write_events, class: "font-medium text-gray-700" %>
+                  <p class="text-gray-500">Allow creating and updating events via the API</p>
+                </div>
+              </div>
+              
+              <div class="flex items-start">
+                <div class="flex items-center h-5">
+                  <%= f.check_box :can_delete_events, class: "focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded" %>
+                </div>
+                <div class="ml-3 text-sm">
+                  <%= f.label :can_delete_events, class: "font-medium text-gray-700" %>
+                  <p class="text-gray-500">Allow deleting events via the API</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+            <%= link_to "Cancel", users_api_keys_path, class: "inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+            <%= f.submit "Create API Key", class: "inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div> 

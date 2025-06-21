@@ -1,218 +1,117 @@
-<div class="min-h-screen bg-gray-50">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <!-- Header -->
     <div class="mb-8">
-      <h1 class="text-3xl font-bold text-gray-900">Settings</h1>
-      <p class="mt-2 text-gray-600">Manage your account settings and API keys</p>
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">Settings</h1>
+          <p class="mt-2 text-sm text-gray-600">Manage your application settings and configurations</p>
+        </div>
+        <div class="flex space-x-3">
+          <%= link_to dashboard_path, class: "inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            Back to Dashboard
+          <% end %>
+        </div>
+      </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <!-- Main Content -->
-      <div class="lg:col-span-2 space-y-6">
-        <!-- API Keys -->
-        <div class="bg-white shadow rounded-lg">
-          <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-            <h3 class="text-lg font-medium text-gray-900">API Keys</h3>
-            <button type="button" onclick="document.getElementById('new-api-key-modal').classList.remove('hidden')" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-              Create New API Key
-            </button>
-          </div>
-          <div class="p-6">
-            <% if @api_keys.any? %>
-              <div class="space-y-4">
-                <% @api_keys.each do |api_key| %>
-                  <div class="border border-gray-200 rounded-lg p-4">
-                    <div class="flex justify-between items-start">
-                      <div class="flex-1">
-                        <h4 class="text-sm font-medium text-gray-900"><%= api_key.name %></h4>
-                        <% if api_key.description.present? %>
-                          <p class="text-sm text-gray-500 mt-1"><%= api_key.description %></p>
-                        <% end %>
-                        <div class="mt-2 flex items-center space-x-4 text-xs text-gray-500">
-                          <span>Created: <%= api_key.created_at.strftime("%B %d, %Y") %></span>
-                          <% if api_key.last_used_at %>
-                            <span>Last used: <%= api_key.last_used_at.strftime("%B %d, %Y") %></span>
-                          <% else %>
-                            <span>Never used</span>
-                          <% end %>
-                        </div>
-                      </div>
-                      <div class="flex space-x-2">
-                        <%= button_to "Regenerate", regenerate_users_api_key_path(api_key), method: :patch, class: "text-yellow-600 hover:text-yellow-500 text-sm", data: { confirm: "This will invalidate the current token. Are you sure?" } %>
-                        <%= button_to "Delete", users_api_key_path(api_key), method: :delete, class: "text-red-600 hover:text-red-500 text-sm", data: { confirm: "Are you sure you want to delete this API key?" } %>
-                      </div>
-                    </div>
-                  </div>
-                <% end %>
+    <div class="space-y-6">
+      <!-- API Keys -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900">API Keys</h3>
+          <p class="mt-1 text-sm text-gray-500">Manage API keys for external integrations and data access</p>
+        </div>
+        <div class="p-6">
+          <div class="space-y-6">
+            <!-- API Key Summary -->
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-4">
+              <div class="bg-blue-50 p-4 rounded-lg">
+                <div class="text-2xl font-bold text-blue-600">
+                  <% if @company.api_keys.exists? %>
+                    <%= @company.api_keys.count %>
+                  <% else %>
+                    0
+                  <% end %>
+                </div>
+                <div class="text-sm text-blue-500">Total Keys</div>
               </div>
-            <% else %>
-              <div class="text-center py-8">
-                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+              <div class="bg-green-50 p-4 rounded-lg">
+                <div class="text-2xl font-bold text-green-600">
+                  <% if @company.api_keys.exists? %>
+                    <%= @company.api_keys.where(is_active: true).count %>
+                  <% else %>
+                    0
+                  <% end %>
+                </div>
+                <div class="text-sm text-green-500">Active</div>
+              </div>
+              <div class="bg-yellow-50 p-4 rounded-lg">
+                <div class="text-2xl font-bold text-yellow-600">
+                  <% if @company.api_keys.exists? %>
+                    <%= @company.api_keys.where(is_active: false).count %>
+                  <% else %>
+                    0
+                  <% end %>
+                </div>
+                <div class="text-sm text-yellow-500">Inactive</div>
+              </div>
+              <div class="bg-purple-50 p-4 rounded-lg">
+                <div class="text-2xl font-bold text-purple-600">
+                  <% if @company.api_keys.exists? %>
+                    <%= @company.api_keys.where('created_at > ?', 7.days.ago).count %>
+                  <% else %>
+                    0
+                  <% end %>
+                </div>
+                <div class="text-sm text-purple-500">Recent</div>
+              </div>
+            </div>
+
+            <!-- API Key Actions -->
+            <div class="flex space-x-3">
+              <%= link_to companies_api_keys_path, class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                 </svg>
-                <h3 class="mt-2 text-sm font-medium text-gray-900">No API keys</h3>
-                <p class="mt-1 text-sm text-gray-500">Get started by creating your first API key.</p>
-              </div>
-            <% end %>
-          </div>
-        </div>
+                Manage API Keys
+              <% end %>
+              
+              <%= link_to new_companies_api_key_path, class: "inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                Create New Key
+              <% end %>
+            </div>
 
-        <!-- Notification Settings -->
-        <div class="bg-white shadow rounded-lg">
-          <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-lg font-medium text-gray-900">Notification Settings</h3>
-          </div>
-          <div class="p-6">
-            <%= form_with model: @user, url: users_profile_path, method: :patch, local: true, class: "space-y-4" do |f| %>
-              <div class="space-y-4">
-                <div class="flex items-center justify-between">
-                  <div>
-                    <p class="text-sm font-medium text-gray-900">Email Notifications</p>
-                    <p class="text-sm text-gray-500">Receive email notifications for important events</p>
-                  </div>
-                  <div class="flex items-center">
-                    <input type="checkbox" name="user[email_notifications]" value="1" <%= 'checked' if @user.email_notifications %> class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                  </div>
+            <!-- API Documentation Link -->
+            <div class="bg-gray-50 rounded-lg p-4">
+              <div class="flex items-start">
+                <div class="flex-shrink-0">
+                  <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
                 </div>
-                <div class="flex items-center justify-between">
-                  <div>
-                    <p class="text-sm font-medium text-gray-900">Alert Notifications</p>
-                    <p class="text-sm text-gray-500">Get notified when new alerts are created</p>
-                  </div>
-                  <div class="flex items-center">
-                    <input type="checkbox" name="user[alert_notifications]" value="1" <%= 'checked' if @user.alert_notifications %> class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                  </div>
-                </div>
-                <div class="flex items-center justify-between">
-                  <div>
-                    <p class="text-sm font-medium text-gray-900">Company Activity</p>
-                    <p class="text-sm text-gray-500">Receive notifications about company member activity</p>
-                  </div>
-                  <div class="flex items-center">
-                    <input type="checkbox" name="user[company_notifications]" value="1" <%= 'checked' if @user.company_notifications %> class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                  </div>
-                </div>
-              </div>
-              <div class="flex justify-end">
-                <%= f.submit "Save Settings", class: "bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" %>
-              </div>
-            <% end %>
-          </div>
-        </div>
-
-        <!-- Security Settings -->
-        <div class="bg-white shadow rounded-lg">
-          <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-lg font-medium text-gray-900">Security Settings</h3>
-          </div>
-          <div class="p-6">
-            <div class="space-y-4">
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="text-sm font-medium text-gray-900">Two-Factor Authentication</p>
-                  <p class="text-sm text-gray-500">
-                    <% if @user.mfa_enabled? %>
-                      <span class="text-green-600">Enabled</span> - Your account is protected with 2FA
-                    <% else %>
-                      <span class="text-red-600">Disabled</span> - Add an extra layer of security
-                    <% end %>
+                <div class="ml-3">
+                  <h4 class="text-sm font-medium text-gray-900">API Documentation</h4>
+                  <p class="text-sm text-gray-500 mt-1">
+                    Learn how to integrate with our API and use your API keys effectively.
                   </p>
+                  <div class="mt-2">
+                    <a href="#" class="text-sm font-medium text-blue-600 hover:text-blue-500">
+                      View API Documentation →
+                    </a>
+                  </div>
                 </div>
-                <%= link_to "Manage 2FA", profile_path(anchor: "mfa"), class: "text-blue-600 hover:text-blue-500 text-sm" %>
-              </div>
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="text-sm font-medium text-gray-900">Session Management</p>
-                  <p class="text-sm text-gray-500">View and manage your active sessions</p>
-                </div>
-                <%= link_to "View Sessions", "#", class: "text-blue-600 hover:text-blue-500 text-sm" %>
               </div>
             </div>
           </div>
         </div>
       </div>
-
-      <!-- Sidebar -->
-      <div class="space-y-6">
-        <!-- Account Status -->
-        <div class="bg-white shadow rounded-lg">
-          <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-lg font-medium text-gray-900">Account Status</h3>
-          </div>
-          <div class="p-6 space-y-4">
-            <div>
-              <p class="text-sm font-medium text-gray-700">Account Status</p>
-              <p class="text-sm text-gray-900">
-                <% if @user.locked? %>
-                  <span class="text-red-600">Locked</span>
-                <% else %>
-                  <span class="text-green-600">Active</span>
-                <% end %>
-              </p>
-            </div>
-            <div>
-              <p class="text-sm font-medium text-gray-700">Email Verification</p>
-              <p class="text-sm text-gray-900">
-                <% if @user.confirmed_at? %>
-                  <span class="text-green-600">Verified</span>
-                <% else %>
-                  <span class="text-red-600">Not Verified</span>
-                <% end %>
-              </p>
-            </div>
-            <div>
-              <p class="text-sm font-medium text-gray-700">Two-Factor Auth</p>
-              <p class="text-sm text-gray-900">
-                <% if @user.mfa_enabled? %>
-                  <span class="text-green-600">Enabled</span>
-                <% else %>
-                  <span class="text-red-600">Disabled</span>
-                <% end %>
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="bg-white shadow rounded-lg">
-          <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-lg font-medium text-gray-900">Quick Actions</h3>
-          </div>
-          <div class="p-6 space-y-3">
-            <%= link_to "Edit Profile", profile_path, class: "block w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md" %>
-            <%= link_to "Change Password", profile_path(anchor: "password"), class: "block w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md" %>
-            <%= link_to "View Events", events_path, class: "block w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md" %>
-            <% if @user.company %>
-              <%= link_to "Team Settings", team_path, class: "block w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md" %>
-            <% end %>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- New API Key Modal -->
-<div id="new-api-key-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-  <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-    <div class="mt-3">
-      <h3 class="text-lg font-medium text-gray-900 mb-4">Create New API Key</h3>
-      <%= form_with model: ApiKey.new, url: users_api_keys_path, local: true, class: "space-y-4" do |f| %>
-        <div>
-          <%= f.label :name, "Name", class: "block text-sm font-medium text-gray-700" %>
-          <%= f.text_field :name, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500", placeholder: "e.g., Production API Key" %>
-        </div>
-        <div>
-          <%= f.label :description, "Description", class: "block text-sm font-medium text-gray-700" %>
-          <%= f.text_area :description, rows: 3, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500", placeholder: "Optional description of what this key is used for" %>
-        </div>
-        <div class="flex justify-end space-x-3">
-          <button type="button" onclick="document.getElementById('new-api-key-modal').classList.add('hidden')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md">
-            Cancel
-          </button>
-          <%= f.submit "Create API Key", class: "px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md" %>
-        </div>
-      <% end %>
     </div>
   </div>
 </div> 

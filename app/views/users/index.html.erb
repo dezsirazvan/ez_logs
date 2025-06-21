@@ -1,108 +1,98 @@
-<div class="min-h-screen bg-gray-50">
-  <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-    <!-- Header -->
-    <div class="mb-8">
-      <div class="flex items-center justify-between">
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+  <!-- Header -->
+  <div class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center py-8">
         <div>
           <h1 class="text-3xl font-bold text-gray-900">Users</h1>
-          <p class="mt-2 text-sm text-gray-600">Manage your company users and their roles</p>
+          <p class="mt-2 text-lg text-gray-600">Manage your organization's users and their access</p>
         </div>
-        <button onclick="document.getElementById('new-user-modal').classList.remove('hidden')" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
-          <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-          </svg>
-          Invite User
-        </button>
+        <div class="flex space-x-3">
+          <%= link_to new_user_path, class: "inline-flex items-center px-6 py-3 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105" do %>
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+            Invite User
+          <% end %>
+        </div>
       </div>
     </div>
+  </div>
 
-    <!-- Users Table -->
-    <div class="bg-white shadow rounded-lg">
-      <div class="px-6 py-4 border-b border-gray-200">
-        <div class="flex items-center justify-between">
-          <h3 class="text-lg font-medium text-gray-900">All Users</h3>
-          <div class="flex items-center space-x-4">
-            <div class="relative">
-              <input type="text" placeholder="Search users..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm" id="user-search">
-              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="overflow-hidden">
-        <% if @users.any? %>
-          <ul class="divide-y divide-gray-200">
-            <% @users.each do |user| %>
-              <li class="px-6 py-4 hover:bg-gray-50 transition-colors">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center">
-                    <div class="flex-shrink-0 h-10 w-10">
-                      <div class="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
-                        <span class="text-sm font-medium text-gray-700"><%= user.initials %></span>
-                      </div>
-                    </div>
-                    <div class="ml-4">
-                      <div class="text-sm font-medium text-gray-900"><%= user.full_name %></div>
-                      <div class="text-sm text-gray-500"><%= user.email %></div>
-                    </div>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <% if @users.any? %>
+      <!-- Users Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <% @users.each do |user| %>
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200 transform hover:-translate-y-1">
+            <div class="p-6">
+              <!-- User Header -->
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center">
+                  <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                    <span class="text-white font-bold text-lg"><%= user.initials %></span>
                   </div>
-                  <div class="flex items-center space-x-4">
-                    <div class="flex items-center space-x-2">
-                      <% if user.team %>
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                          <%= user.team.name %>
-                        </span>
-                      <% else %>
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                          No Team
-                        </span>
-                      <% end %>
-                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        <%= user.role&.name || 'No role' %>
-                      </span>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                      <% if user == current_user %>
-                        <span class="text-xs text-gray-500">You</span>
-                      <% end %>
-                      <% if user.is_active? %>
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Active</span>
-                      <% else %>
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Inactive</span>
-                      <% end %>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                      <%= link_to "Edit", edit_user_path(user), class: "text-blue-600 hover:text-blue-700 text-sm" %>
-                      <% if user != current_user %>
-                        <%= button_to "Deactivate", deactivate_user_path(user), method: :patch, class: "text-red-600 hover:text-red-700 text-sm", data: { confirm: "Are you sure you want to deactivate this user?" } %>
-                      <% end %>
-                    </div>
+                  <div class="ml-4">
+                    <h3 class="text-lg font-semibold text-gray-900"><%= user.full_name %></h3>
+                    <p class="text-sm text-gray-500"><%= user.email %></p>
                   </div>
                 </div>
-              </li>
-            <% end %>
-          </ul>
-        <% else %>
-          <div class="text-center py-12">
-            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
-            </svg>
-            <h3 class="mt-2 text-sm font-medium text-gray-900">No users</h3>
-            <p class="mt-1 text-sm text-gray-500">Get started by inviting your first user.</p>
-            <div class="mt-6">
-              <button onclick="document.getElementById('new-user-modal').classList.remove('hidden')" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                Invite User
-              </button>
+                <div class="flex items-center space-x-2">
+                  <%= link_to user_path(user), class: "p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" do %>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                    </svg>
+                  <% end %>
+                  <%= link_to edit_user_path(user), class: "p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors" do %>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                    </svg>
+                  <% end %>
+                </div>
+              </div>
+
+              <!-- User Details -->
+              <div class="mb-4">
+                <div class="space-y-2">
+                  <div class="flex items-center space-x-2 text-sm text-gray-500">
+                    <span class="text-sm text-gray-600">Role:</span>
+                    <span class="text-sm font-medium text-gray-900"><%= user.role&.name || 'No role' %></span>
+                  </div>
+                  <div class="flex items-center space-x-2 text-sm text-gray-500">
+                    <span class="text-sm text-gray-600">Joined:</span>
+                    <span class="text-sm text-gray-900"><%= user.created_at.strftime("%b %d, %Y") %></span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- User Actions -->
+              <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+                <div></div>
+                <%= link_to "View Profile", user_path(user), class: "inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors" %>
+              </div>
             </div>
           </div>
         <% end %>
       </div>
-    </div>
+    <% else %>
+      <!-- Empty State -->
+      <div class="text-center py-12">
+        <div class="w-24 h-24 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <svg class="w-12 h-12 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+          </svg>
+        </div>
+        <h3 class="text-2xl font-bold text-gray-900 mb-2">No users yet</h3>
+        <p class="text-gray-600 mb-8 max-w-md mx-auto">Invite team members to collaborate on your projects. You can manage their roles and permissions once they join.</p>
+        <%= link_to new_user_path, class: "inline-flex items-center px-6 py-3 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105" do %>
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+          </svg>
+          Invite Your First User
+        <% end %>
+      </div>
+    <% end %>
   </div>
 </div>
 
@@ -136,13 +126,6 @@
           <%= f.select :role_id, 
               options_from_collection_for_select(Role.all, :id, :name), 
               { prompt: "Choose a role..." }, 
-              { class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" } %>
-        </div>
-        <div>
-          <%= f.label :team_id, "Team (Optional)", class: "block text-sm font-medium text-gray-700" %>
-          <%= f.select :team_id, 
-              options_from_collection_for_select(Team.all, :id, :name), 
-              { prompt: "Choose a team..." }, 
               { class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" } %>
         </div>
         <div class="flex justify-end space-x-3">

@@ -1,0 +1,122 @@
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="flex items-center">
+        <%= link_to companies_api_keys_path, class: "mr-4 text-gray-400 hover:text-gray-600" do %>
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+          </svg>
+        <% end %>
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900"><%= @api_key.name %></h1>
+          <p class="mt-2 text-sm text-gray-600">API Key Details</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- API Key Details -->
+    <div class="bg-white shadow sm:rounded-lg">
+      <div class="px-4 py-5 sm:p-6">
+        <div class="space-y-6">
+          <!-- Status -->
+          <div>
+            <h3 class="text-lg font-medium text-gray-900">Status</h3>
+            <div class="mt-2">
+              <% if @api_key.is_active? %>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                  </svg>
+                  Active
+                </span>
+              <% else %>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                  Inactive
+                </span>
+              <% end %>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <% if @api_key.description.present? %>
+            <div>
+              <h3 class="text-lg font-medium text-gray-900">Description</h3>
+              <p class="mt-2 text-sm text-gray-600"><%= @api_key.description %></p>
+            </div>
+          <% end %>
+
+          <!-- API Key -->
+          <div>
+            <h3 class="text-lg font-medium text-gray-900">API Key</h3>
+            <div class="mt-2">
+              <div class="flex items-center">
+                <input type="text" value="<%= @api_key.key %>" readonly class="block w-full border-gray-300 rounded-md shadow-sm bg-gray-50 text-sm font-mono" id="api-key">
+                <button onclick="copyApiKey()" class="ml-2 inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                  </svg>
+                </button>
+              </div>
+              <p class="mt-1 text-xs text-gray-500">Copy this key and store it securely. You won't be able to see it again.</p>
+            </div>
+          </div>
+
+          <!-- Usage Information -->
+          <div>
+            <h3 class="text-lg font-medium text-gray-900">Usage Information</h3>
+            <div class="mt-2 space-y-2 text-sm text-gray-600">
+              <div class="flex justify-between">
+                <span>Created:</span>
+                <span><%= @api_key.created_at.strftime("%B %d, %Y at %I:%M %p") %></span>
+              </div>
+              <% if @api_key.last_used_at.present? %>
+                <div class="flex justify-between">
+                  <span>Last used:</span>
+                  <span><%= @api_key.last_used_at.strftime("%B %d, %Y at %I:%M %p") %></span>
+                </div>
+              <% end %>
+              <% if @api_key.usage_count.present? %>
+                <div class="flex justify-between">
+                  <span>Total requests:</span>
+                  <span><%= number_with_delimiter(@api_key.usage_count) %></span>
+                </div>
+              <% end %>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+            <%= link_to "Back to API Keys", companies_api_keys_path, class: "bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+            <%= button_to "Delete API Key", companies_api_key_path(@api_key), method: :delete, class: "inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500", data: { confirm: "Are you sure you want to delete this API key? This action cannot be undone." } %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function copyApiKey() {
+  const apiKeyInput = document.getElementById('api-key');
+  apiKeyInput.select();
+  apiKeyInput.setSelectionRange(0, 99999); // For mobile devices
+  document.execCommand('copy');
+  
+  // Show feedback
+  const button = event.target.closest('button');
+  const originalText = button.innerHTML;
+  button.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
+  button.classList.remove('text-gray-700', 'bg-white', 'hover:bg-gray-50');
+  button.classList.add('text-green-700', 'bg-green-50');
+  
+  setTimeout(() => {
+    button.innerHTML = originalText;
+    button.classList.remove('text-green-700', 'bg-green-50');
+    button.classList.add('text-gray-700', 'bg-white', 'hover:bg-gray-50');
+  }, 2000);
+}
+</script> 

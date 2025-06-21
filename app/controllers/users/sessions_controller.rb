@@ -28,15 +28,6 @@ class Users::SessionsController < Devise::SessionsController
     super do |user|
       if user.persisted?
         user.record_login(request.remote_ip)
-        AuditLog.create!(
-          user: user,
-          action: "user_login_success",
-          resource_type: "User",
-          resource_id: user.id,
-          ip_address: request.remote_ip,
-          user_agent: request.user_agent,
-          details: { method: "password" }
-        )
       end
     end
   rescue => e
@@ -47,21 +38,6 @@ class Users::SessionsController < Devise::SessionsController
 
   # DELETE /resource/sign_out
   def destroy
-    if current_user
-      AuditLog.create!(
-        user: current_user,
-        action: "user_logout",
-        resource_type: "User",
-        resource_id: current_user.id,
-        ip_address: request.remote_ip,
-        user_agent: request.user_agent,
-        details: { session_duration: session_duration }
-      )
-    end
-
-    super
-  rescue => e
-    Rails.logger.error "Logout error: #{e.message}"
     super
   end
 

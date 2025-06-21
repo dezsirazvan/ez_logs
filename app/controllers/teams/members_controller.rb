@@ -20,7 +20,6 @@ class Teams::MembersController < ApplicationController
 
     if invitation
       flash[:success] = "Invitation sent to #{params[:email]}"
-      log_activity('team_invitation_sent', @team, { invited_email: params[:email] })
     else
       flash[:error] = "Failed to send invitation. User may already be a member or invited."
     end
@@ -34,7 +33,6 @@ class Teams::MembersController < ApplicationController
 
     if @team.remove_member(@member)
       flash[:success] = "#{@member.full_name} removed from team"
-      log_activity('team_member_removed', @team, { removed_user_id: @member.id })
     else
       flash[:error] = "Failed to remove member from team"
     end
@@ -49,10 +47,6 @@ class Teams::MembersController < ApplicationController
     
     if @member.update(role: new_role)
       flash[:success] = "Role updated for #{@member.full_name}"
-      log_activity('team_member_role_updated', @team, { 
-        member_id: @member.id, 
-        new_role: new_role.name 
-      })
     else
       flash[:error] = "Failed to update role"
     end
@@ -65,9 +59,6 @@ class Teams::MembersController < ApplicationController
 
     if @team.transfer_ownership(@member)
       flash[:success] = "Team ownership transferred to #{@member.full_name}"
-      log_activity('team_ownership_transferred', @team, { 
-        new_owner_id: @member.id 
-      })
     else
       flash[:error] = "Failed to transfer ownership"
     end
@@ -82,9 +73,6 @@ class Teams::MembersController < ApplicationController
     
     if invitation.update(status: 'cancelled')
       flash[:success] = "Invitation cancelled"
-      log_activity('team_invitation_cancelled', @team, { 
-        invitation_id: invitation.id 
-      })
     else
       flash[:error] = "Failed to cancel invitation"
     end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_20_172201) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_21_003342) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -51,6 +51,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_20_172201) do
     t.datetime "updated_at", null: false
     t.json "permissions", default: {}
     t.datetime "last_used_at"
+    t.datetime "revoked_at"
+    t.string "display_name"
+    t.boolean "can_read"
+    t.boolean "can_write"
+    t.boolean "can_delete"
     t.index ["company_id"], name: "index_api_keys_on_company_id"
   end
 
@@ -103,7 +108,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_20_172201) do
 
   create_table "invitations", force: :cascade do |t|
     t.bigint "company_id", null: false
-    t.bigint "team_id", null: false
     t.bigint "role_id", null: false
     t.bigint "invited_by_id", null: false
     t.string "email", null: false
@@ -119,7 +123,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_20_172201) do
     t.index ["invited_by_id"], name: "index_invitations_on_invited_by_id"
     t.index ["role_id"], name: "index_invitations_on_role_id"
     t.index ["status"], name: "index_invitations_on_status"
-    t.index ["team_id"], name: "index_invitations_on_team_id"
     t.index ["token"], name: "index_invitations_on_token", unique: true
   end
 
@@ -134,15 +137,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_20_172201) do
     t.index ["name"], name: "index_roles_on_name", unique: true
   end
 
-  create_table "teams", force: :cascade do |t|
-    t.string "name", null: false
-    t.text "description"
-    t.bigint "company_id", null: false
-    t.json "settings", default: {}
-    t.boolean "is_active", default: true, null: false
+  create_table "user_sessions", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.datetime "started_at"
+    t.datetime "ended_at"
+    t.string "ip_address"
+    t.text "user_agent"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["company_id"], name: "index_teams_on_company_id"
+    t.index ["user_id"], name: "index_user_sessions_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -151,7 +154,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_20_172201) do
     t.string "first_name"
     t.string "last_name"
     t.bigint "company_id", null: false
-    t.bigint "team_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "role_id"
@@ -161,7 +163,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_20_172201) do
     t.json "backup_codes", default: []
     t.boolean "email_notifications", default: true, null: false
     t.boolean "alert_notifications", default: true, null: false
-    t.boolean "team_notifications", default: true, null: false
     t.string "timezone", default: "UTC", null: false
     t.string "language", default: "en", null: false
     t.integer "login_count", default: 0
@@ -176,13 +177,13 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_20_172201) do
     t.datetime "last_sign_in_at"
     t.string "current_sign_in_ip"
     t.string "last_sign_in_ip"
-    t.boolean "company_notifications"
+    t.boolean "is_active", default: true, null: false
+    t.string "unconfirmed_email"
     t.index ["company_id"], name: "index_users_on_company_id"
     t.index ["confirmed_at"], name: "index_users_on_confirmed_at"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["locked_at"], name: "index_users_on_locked_at"
     t.index ["role_id"], name: "index_users_on_role_id"
-    t.index ["team_id"], name: "index_users_on_team_id"
   end
 
   add_foreign_key "activities", "companies"
@@ -194,10 +195,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_20_172201) do
   add_foreign_key "events", "companies"
   add_foreign_key "invitations", "companies"
   add_foreign_key "invitations", "roles"
-  add_foreign_key "invitations", "teams"
   add_foreign_key "invitations", "users", column: "invited_by_id"
-  add_foreign_key "teams", "companies"
+  add_foreign_key "user_sessions", "users"
   add_foreign_key "users", "companies"
   add_foreign_key "users", "roles"
-  add_foreign_key "users", "teams"
 end
