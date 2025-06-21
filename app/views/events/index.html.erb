@@ -224,7 +224,7 @@
           </div>
         </div>
       </div>
-      <% if @events.any? %>
+      <% if @events.present? %>
         <div class="divide-y divide-gray-200/60">
           <% @events.each do |event| %>
             <div class="px-6 py-5 hover:bg-blue-50/50 transition-all duration-200 group">

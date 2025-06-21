@@ -38,7 +38,6 @@ class EventsController < ApplicationController
     else
       @recent_story_flows = {}
     end
-    
     respond_to do |format|
       format.html
       format.json { respond_with_json(@events) }
@@ -96,8 +95,8 @@ class EventsController < ApplicationController
 
   def apply_event_filters(events)
     # Check if any user filters are explicitly set (not Rails controller actions)
-    has_user_filters = (params[:event_type].present? && params[:event_type] != 'index') || 
-                      (params[:action_filter].present? && params[:action_filter] != 'index') || 
+    has_user_filters = params[:event_type].present? || 
+                      params[:action_filter].present? || 
                       params[:date_range].present? || 
                       params[:actor_id].present? || 
                       params[:subject_id].present? || 
@@ -107,8 +106,8 @@ class EventsController < ApplicationController
     return events unless has_user_filters
     
     # Only apply filters if they are explicitly set by the user
-    events = events.where(event_type: params[:event_type]) if params[:event_type].present? && params[:event_type] != 'index'
-    events = events.where("action ILIKE ?", "%#{params[:action_filter]}%") if params[:action_filter].present? && params[:action_filter] != 'index'
+    events = events.where(event_type: params[:event_type]) if params[:event_type].present?
+    events = events.where("action ILIKE ?", "%#{params[:action_filter]}%") if params[:action_filter].present?
     
     date_filter = date_range_filter
     events = events.where(timestamp: date_filter) if date_filter.present?
@@ -153,8 +152,8 @@ class EventsController < ApplicationController
     base_query = current_user.company.events
     
     # Check if any user filters are explicitly set (not Rails controller actions)
-    has_user_filters = (params[:event_type].present? && params[:event_type] != 'index') || 
-                      (params[:action_filter].present? && params[:action_filter] != 'index') || 
+    has_user_filters = params[:event_type].present? || 
+                      params[:action_filter].present? || 
                       params[:date_range].present? || 
                       params[:actor_id].present? || 
                       params[:subject_id].present? || 
