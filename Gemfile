@@ -89,7 +89,7 @@ group :development do
   gem "binding_of_caller", "~> 1.0"
 
   # Code quality
-  gem "rubocop", "~> 1.56", require: false
+  gem "rubocop", "~> 1.77", require: false
   gem "rubocop-rails", "~> 2.20", require: false
   gem "rubocop-rspec", "~> 2.24", require: false
 
