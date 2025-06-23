@@ -62,7 +62,7 @@ gem "sentry-ruby", "~> 5.17"
 gem "sentry-rails", "~> 5.17"
 
 # Security
-gem "brakeman", "~> 6.1", require: false
+gem "brakeman", "~> 7.0", require: false
 gem "bundler-audit", "~> 0.9", require: false
 
 # Development and Testing
