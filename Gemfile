@@ -94,7 +94,7 @@ group :development do
   gem "rubocop-rspec", "~> 2.24", require: false
 
   # Performance monitoring
-  gem "rack-mini-profiler", "~> 3.1"
+  gem "rack-mini-profiler", "~> 4.0"
   gem "memory_profiler", "~> 1.0"
 
   # Development utilities
