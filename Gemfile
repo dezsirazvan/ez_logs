@@ -131,8 +131,8 @@ gem "rack-attack", "~> 6.6"
 gem "health_check", "~> 3.1"
 
 # Feature flags
-gem "flipper", "~> 0.25"
-gem "flipper-ui", "~> 0.25"
+gem "flipper", "~> 1.3"
+gem "flipper-ui", "~> 1.3"
 
 # Background job monitoring
 gem "sidekiq-failures", "~> 1.0"
