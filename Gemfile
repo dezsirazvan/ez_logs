@@ -107,7 +107,7 @@ group :test do
   gem "capybara", "~> 3.40"
   gem "selenium-webdriver", "~> 4.10"
   gem "webdrivers", "~> 5.3"
-  gem "rspec-sidekiq", "~> 4.1"
+  gem "rspec-sidekiq", "~> 5.1"
   gem "rails-controller-testing", "~> 1.0"
 end
 
