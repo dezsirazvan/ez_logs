@@ -90,7 +90,7 @@ group :development do
 
   # Code quality
   gem "rubocop", "~> 1.56", require: false
-  gem "rubocop-rails", "~> 2.20", require: false
+  gem "rubocop-rails", "~> 2.32", require: false
   gem "rubocop-rspec", "~> 2.24", require: false
 
   # Performance monitoring
