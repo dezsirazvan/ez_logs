@@ -112,7 +112,7 @@ group :test do
 end
 
 # Performance monitoring libraries
-gem "skylight", "~> 5.3"
+gem "skylight", "~> 6.0"
 
 # Pagination
 gem "kaminari", "~> 1.2"
