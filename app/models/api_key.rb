@@ -111,11 +111,15 @@ class ApiKey < ApplicationRecord
 
   def usage_summary
     {
-      total_requests: request_count || 0,
+      total_requests: 0,
       last_used: last_used_at,
       created: created_at,
       status: active? ? 'active' : 'revoked'
     }
+  end
+
+  def usage_count
+    0
   end
 
   private

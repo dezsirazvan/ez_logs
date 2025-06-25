@@ -55,7 +55,7 @@
                     </svg>
                     Events
                   <% end %>
-                  <%= link_to dashboard_stories_path, class: "flex items-center px-3 py-2 rounded-md text-sm font-medium #{controller_name == 'dashboard' && action_name == 'stories' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'}" do %>
+                  <%= link_to stories_path, class: "flex items-center px-3 py-2 rounded-md text-sm font-medium #{controller_name == 'dashboard' && action_name == 'stories' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'}" do %>
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                     </svg>
@@ -108,7 +108,7 @@
                     Profile
                   <% end %>
                   <!-- Stories -->
-                  <%= link_to dashboard_stories_path, class: "flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors", role: "menuitem", tabindex:"-1" do %>
+                  <%= link_to stories_path, class: "flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors", role: "menuitem", tabindex:"-1" do %>
                     <svg class="w-4 h-4 mr-3 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 20l9-5-9-5-9 5 9 5z" />
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 12V4m0 0L3 9m9-5l9 5" />
@@ -117,7 +117,7 @@
                   <% end %>
                   <!-- Settings (Admin Only) -->
                   <% if current_user.admin? %>
-                    <%= link_to '/dashboard/settings', { class: "flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors", role: "menuitem", tabindex: "-1" } do %>
+                    <%= link_to settings_path, { class: "flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors", role: "menuitem", tabindex: "-1" } do %>
                       <svg class="w-4 h-4 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -158,7 +158,7 @@
               </svg>
               Events
             <% end %>
-            <%= link_to dashboard_stories_path, class: "flex items-center px-3 py-2 rounded-md text-base font-medium #{controller_name == 'dashboard' && action_name == 'stories' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'}" do %>
+            <%= link_to stories_path, class: "flex items-center px-3 py-2 rounded-md text-base font-medium #{controller_name == 'dashboard' && action_name == 'stories' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'}" do %>
               <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
               </svg>

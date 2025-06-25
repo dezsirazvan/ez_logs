@@ -185,7 +185,7 @@
 
               <!-- Action Button -->
               <div class="mt-4 pt-4 border-t border-gray-100">
-                <%= link_to dashboard_story_path(story[:correlation_id]), class: "w-full inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-purple-700 bg-purple-100 hover:bg-purple-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-200 group-hover:bg-purple-200" do %>
+                <%= link_to story_path(story[:correlation_id]), class: "w-full inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-purple-700 bg-purple-100 hover:bg-purple-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-200 group-hover:bg-purple-200" do %>
                   <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
@@ -204,7 +204,7 @@
           <div class="bg-white rounded-2xl shadow-lg px-6 py-4">
             <div class="flex items-center space-x-4">
               <% if @pagination[:has_prev] %>
-                <%= link_to dashboard_stories_path(page: @pagination[:current_page] - 1), class: "inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors" do %>
+                <%= link_to stories_path(page: @pagination[:current_page] - 1), class: "inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors" do %>
                   <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                   </svg>
@@ -219,7 +219,7 @@
                       <%= page %>
                     </span>
                   <% elsif page == 1 || page == @pagination[:total_pages] || (page >= @pagination[:current_page] - 1 && page <= @pagination[:current_page] + 1) %>
-                    <%= link_to page, dashboard_stories_path(page: page), class: "inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors" %>
+                    <%= link_to page, stories_path(page: page), class: "inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors" %>
                   <% elsif page == @pagination[:current_page] - 2 || page == @pagination[:current_page] + 2 %>
                     <span class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-400">...</span>
                   <% end %>
@@ -227,7 +227,7 @@
               </div>
 
               <% if @pagination[:has_next] %>
-                <%= link_to dashboard_stories_path(page: @pagination[:current_page] + 1), class: "inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors" do %>
+                <%= link_to stories_path(page: @pagination[:current_page] + 1), class: "inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors" do %>
                   Next
                   <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -299,7 +299,7 @@
   
   // Auto-refresh every 60 seconds for stories
   setInterval(function() {
-    if (window.location.pathname === '<%= dashboard_stories_path %>') {
+    if (window.location.pathname === '<%= stories_path %>') {
       window.location.reload();
     }
   }, 60000);

@@ -7,23 +7,48 @@ class DashboardController < ApplicationController
     company = current_user.company
     return redirect_to root_path, alert: "Company not found" unless company
 
-    @event_stats = {
-      total_events: company.events.count,
-      today_events: company.events.where(timestamp: Date.current.beginning_of_day..Date.current.end_of_day).count,
-      this_week_events: company.events.where(timestamp: 1.week.ago..Time.current).count,
-      active_sessions: company.users.where('last_sign_in_at > ?', 1.hour.ago).count,
-      correlated_events: company.events.where.not(correlation_id: [nil, '']).count,
-      error_events: company.events.where("action ILIKE ? OR action ILIKE ? OR action ILIKE ?", "%error%", "%exception%", "%fail%").count
-    }
-    
-    # Get recent events for the dashboard
-    @recent_events = company.events.includes(:company).order(timestamp: :desc).limit(10)
-    
-    # Get recent users for the dashboard
-    @recent_users = company.users.includes(:role).order(created_at: :desc).limit(5)
-    
-    # Get story flows (correlated events) for the dashboard
-    @story_flows = get_story_flows
+    if current_user.admin?
+      # Admin dashboard - show system-wide stats
+      @event_stats = {
+        total_events: Event.count,
+        today_events: Event.where(timestamp: Date.current.beginning_of_day..Date.current.end_of_day).count,
+        this_week_events: Event.where(timestamp: 1.week.ago..Time.current).count,
+        active_sessions: User.where('last_sign_in_at > ?', 1.hour.ago).count,
+        correlated_events: Event.where.not(correlation_id: [nil, '']).count,
+        error_events: Event.where("action ILIKE ? OR action ILIKE ? OR action ILIKE ?", "%error%", "%exception%", "%fail%").count,
+        total_users: User.count,
+        total_companies: Company.count,
+        total_api_keys: ApiKey.count
+      }
+      
+      # Get recent events across all companies
+      @recent_events = Event.includes(:company).order(timestamp: :desc).limit(10)
+      
+      # Get recent users across all companies
+      @recent_users = User.includes(:role, :company).order(created_at: :desc).limit(5)
+      
+      # Get story flows across all companies
+      @story_flows = get_system_story_flows
+    else
+      # Regular user dashboard - show company-specific stats
+      @event_stats = {
+        total_events: company.events.count,
+        today_events: company.events.where(timestamp: Date.current.beginning_of_day..Date.current.end_of_day).count,
+        this_week_events: company.events.where(timestamp: 1.week.ago..Time.current).count,
+        active_sessions: company.users.where('last_sign_in_at > ?', 1.hour.ago).count,
+        correlated_events: company.events.where.not(correlation_id: [nil, '']).count,
+        error_events: company.events.where("action ILIKE ? OR action ILIKE ? OR action ILIKE ?", "%error%", "%exception%", "%fail%").count
+      }
+      
+      # Get recent events for the company
+      @recent_events = company.events.includes(:company).order(timestamp: :desc).limit(10)
+      
+      # Get recent users for the company
+      @recent_users = company.users.includes(:role).order(created_at: :desc).limit(5)
+      
+      # Get story flows for the company
+      @story_flows = get_story_flows
+    end
   rescue => e
     Rails.logger.error "Dashboard index error: #{e.message}"
     @event_stats = {
@@ -144,6 +169,34 @@ class DashboardController < ApplicationController
     
     correlation_ids.map do |correlation_id|
       events = @company.events.where(correlation_id: correlation_id).order(:timestamp)
+      first_event = events.first
+      last_event = events.last
+      duration = first_event && last_event ? (last_event.timestamp - first_event.timestamp) : 0
+      
+      {
+        correlation_id: correlation_id,
+        events: events,
+        event_count: events.count,
+        first_event: first_event,
+        last_event: last_event,
+        duration: duration,
+        actors: events.map { |e| e.actor_display }.uniq.compact,
+        event_types: events.map(&:event_type).uniq.compact
+      }
+    end
+  end
+
+  def get_system_story_flows
+    # Get correlation IDs with multiple events across all companies
+    correlation_ids = Event
+                      .where.not(correlation_id: [nil, ''])
+                      .group(:correlation_id)
+                      .having('COUNT(*) > 1')
+                      .pluck(:correlation_id)
+                      .first(5) # Limit to 5 for dashboard
+    
+    correlation_ids.map do |correlation_id|
+      events = Event.where(correlation_id: correlation_id).order(:timestamp)
       first_event = events.first
       last_event = events.last
       duration = first_event && last_event ? (last_event.timestamp - first_event.timestamp) : 0

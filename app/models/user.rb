@@ -32,6 +32,7 @@ class User < ApplicationRecord
   scope :unconfirmed, -> { where(confirmed_at: nil) }
   scope :by_role, ->(role) { where(role: role) }
   scope :recent, -> { order(created_at: :desc) }
+  scope :with_mfa, -> { where(mfa_enabled: true) }
 
   # Virtual attributes
   attr_accessor :password_confirmation
@@ -131,6 +132,17 @@ class User < ApplicationRecord
 
   def confirm!
     update!(confirmed_at: Time.current)
+  end
+
+  def record_login(ip_address)
+    update!(
+      login_count: login_count + 1,
+      last_login_at: Time.current,
+      current_sign_in_at: Time.current,
+      last_sign_in_at: current_sign_in_at,
+      current_sign_in_ip: ip_address,
+      last_sign_in_ip: current_sign_in_ip
+    )
   end
 
   # Password methods

@@ -10,12 +10,14 @@ Rails.application.routes.draw do
     passwords: 'users/passwords'
   }
 
-  # Dashboard routes
+  # Main dashboard route
   get "dashboard", to: "dashboard#index", as: :dashboard
-  get "dashboard/profile", to: "dashboard#profile", as: :profile
-  get "dashboard/settings", to: "dashboard#settings", as: :dashboard_settings
-  get "dashboard/stories", to: "dashboard#stories", as: :dashboard_stories
-  get "dashboard/stories/:id", to: "dashboard#story", as: :dashboard_story
+
+  # Individual routes (not nested under dashboard)
+  get "settings", to: "dashboard#settings", as: :settings
+  get "profile", to: "dashboard#profile", as: :profile
+  get "stories", to: "dashboard#stories", as: :stories
+  get "stories/:id", to: "dashboard#story", as: :story
 
   # Events routes
   resources :events, only: [:index, :show]
@@ -35,7 +37,7 @@ Rails.application.routes.draw do
 
   # API Keys routes (admin only)
   namespace :companies do
-    resources :api_keys, except: [:show]
+    resources :api_keys
   end
 
   # API routes
