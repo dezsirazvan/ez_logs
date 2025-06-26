@@ -41,15 +41,20 @@ class Api::EventsController < ApplicationController
       
       created_events = []
       errors = []
-      
+
       events_data.each_with_index do |event_data, index|
-        event = current_api_key.company.events.build(batch_event_params(event_data))
+        params = batch_event_params(event_data)
+        Rails.logger.info "Creating event with params: #{params.inspect}"
+        
+        event = current_api_key.company.events.build(params)
         event.timestamp ||= Time.current
         event.source ||= 'go_agent'
         
         if event.save
           created_events << event
+          Rails.logger.info "Successfully created event: #{event.id}"
         else
+          Rails.logger.error "Failed to create event: #{event.errors.full_messages}"
           errors << { index: index, errors: event.errors.full_messages }
         end
       end
@@ -98,17 +103,16 @@ class Api::EventsController < ApplicationController
   def batch_event_params(event_data)
     # Convert Go agent UniversalEvent format to Rails params
     {
+      event_id: event_data['event_id'] || SecureRandom.uuid,
+      correlation_id: event_data.dig('correlation', 'correlation_id') || SecureRandom.uuid,
       event_type: event_data['event_type'],
       action: event_data['action'],
-      actor_type: event_data.dig('actor', 'type'),
-      actor_id: event_data.dig('actor', 'id'),
-      subject_type: event_data.dig('target', 'type') || event_data.dig('subject', 'type'),
-      subject_id: event_data.dig('target', 'id') || event_data.dig('subject', 'id'),
-      severity: event_data['severity'] || 'info',
+      actor: event_data['actor'] || {},
+      subject: event_data['subject'] || event_data['target'] || {},
+      metadata: event_data['metadata'] || {},
+      timestamp: parse_timestamp(event_data['timestamp']),
       source: event_data['source'] || 'go_agent',
-      tags: event_data['tags'],
-      metadata: event_data['metadata'] || event_data.except('event_type', 'action', 'actor', 'target', 'subject', 'timestamp', 'severity', 'source', 'tags'),
-      timestamp: parse_timestamp(event_data['timestamp'])
+      tags: event_data['tags']
     }.compact
   end
 
@@ -126,7 +130,6 @@ class Api::EventsController < ApplicationController
   end
 
   def authenticate_api_key!
-    binding.irb
     token = request.headers['Authorization']&.gsub('Bearer ', '') ||
             request.headers['X-API-Key'] ||
             params[:api_key]
