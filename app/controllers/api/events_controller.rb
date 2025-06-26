@@ -17,6 +17,73 @@ class Api::EventsController < ApplicationController
   end
 
   def create
+    # Handle both Go agent batch format and single event format
+    if go_agent_batch_request?
+      handle_batch_create
+    else
+      handle_single_create
+    end
+  end
+
+  private
+
+  def go_agent_batch_request?
+    # Check if request is from Go agent (JSON array in body)
+    request.content_type&.include?('application/json') && 
+    request.raw_post.strip.start_with?('[')
+  end
+
+  def handle_batch_create
+    begin
+      events_data = JSON.parse(request.raw_post)
+      events_data = [events_data] unless events_data.is_a?(Array)
+      
+      created_events = []
+      errors = []
+      
+      events_data.each_with_index do |event_data, index|
+        event = current_api_key.company.events.build(batch_event_params(event_data))
+        event.timestamp ||= Time.current
+        event.source ||= 'go_agent'
+        
+        if event.save
+          created_events << event
+        else
+          errors << { index: index, errors: event.errors.full_messages }
+        end
+      end
+      
+      if errors.empty?
+        render json: {
+          status: 'success',
+          events_created: created_events.size,
+          events: created_events.map { |e| { id: e.id, event_type: e.event_type, action: e.action } }
+        }, status: :created
+      else
+        render json: {
+          status: 'partial_success',
+          events_created: created_events.size,
+          events_failed: errors.size,
+          errors: errors
+        }, status: :multi_status
+      end
+      
+    rescue JSON::ParserError => e
+      render json: { 
+        status: 'error', 
+        message: 'Invalid JSON format',
+        error: e.message 
+      }, status: :bad_request
+    rescue => e
+      Rails.logger.error "Batch event creation error: #{e.message}"
+      render json: { 
+        status: 'error', 
+        message: 'Internal server error' 
+      }, status: :internal_server_error
+    end
+  end
+
+  def handle_single_create
     @event = current_api_key.company.events.build(event_params)
     @event.timestamp ||= Time.current
 
@@ -27,10 +94,41 @@ class Api::EventsController < ApplicationController
     end
   end
 
-  private
+  def batch_event_params(event_data)
+    # Convert Go agent UniversalEvent format to Rails params
+    {
+      event_type: event_data['event_type'],
+      action: event_data['action'],
+      actor_type: event_data.dig('actor', 'type'),
+      actor_id: event_data.dig('actor', 'id'),
+      subject_type: event_data.dig('target', 'type') || event_data.dig('subject', 'type'),
+      subject_id: event_data.dig('target', 'id') || event_data.dig('subject', 'id'),
+      severity: event_data['severity'] || 'info',
+      source: event_data['source'] || 'go_agent',
+      tags: event_data['tags'],
+      metadata: event_data['metadata'] || event_data.except('event_type', 'action', 'actor', 'target', 'subject', 'timestamp', 'severity', 'source', 'tags'),
+      timestamp: parse_timestamp(event_data['timestamp'])
+    }.compact
+  end
+
+  def parse_timestamp(timestamp_str)
+    return Time.current if timestamp_str.blank?
+    
+    case timestamp_str
+    when String
+      Time.parse(timestamp_str) rescue Time.current
+    when Time
+      timestamp_str
+    else
+      Time.current
+    end
+  end
 
   def authenticate_api_key!
-    token = request.headers['Authorization']&.gsub('Bearer ', '')
+    token = request.headers['Authorization']&.gsub('Bearer ', '') ||
+            request.headers['X-API-Key'] ||
+            params[:api_key]
+    
     @current_api_key = ApiKey.find_by(token: token, is_active: true)
     
     unless @current_api_key
