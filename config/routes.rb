@@ -42,8 +42,8 @@ Rails.application.routes.draw do
 
   # API routes
   namespace :api do
+    resources :events, only: [:create, :index, :show]
     namespace :v1 do
-      resources :events, only: [:create, :index]
       resources :alerts, only: [:create, :index]
     end
   end
