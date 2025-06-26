@@ -1,5 +1,6 @@
 class Api::EventsController < ApplicationController
   skip_before_action :authenticate_user!
+  skip_before_action :verify_authenticity_token
   before_action :authenticate_api_key!
   before_action :set_event, only: [:show]
 
@@ -125,6 +126,7 @@ class Api::EventsController < ApplicationController
   end
 
   def authenticate_api_key!
+    binding.irb
     token = request.headers['Authorization']&.gsub('Bearer ', '') ||
             request.headers['X-API-Key'] ||
             params[:api_key]
