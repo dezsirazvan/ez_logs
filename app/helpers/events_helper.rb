@@ -139,4 +139,40 @@ module EventsHelper
       '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'.html_safe
     end
   end
+
+  # Component badge styling for stories
+  def component_badge_class(component)
+    case component.to_s
+    when 'web'
+      'bg-blue-100 text-blue-800'
+    when 'database'
+      'bg-green-100 text-green-800'
+    when 'background_job'
+      'bg-yellow-100 text-yellow-800'
+    when 'api'
+      'bg-purple-100 text-purple-800'
+    when 'security'
+      'bg-red-100 text-red-800'
+    else
+      'bg-gray-100 text-gray-800'
+    end
+  end
+
+  # Component icons for stories
+  def component_icon(component)
+    case component.to_s
+    when 'web'
+      '🌐'
+    when 'database'
+      '💾'
+    when 'background_job'
+      '⚙️'
+    when 'api'
+      '📡'
+    when 'security'
+      '🔒'
+    else
+      '🏗️'
+    end
+  end
 end

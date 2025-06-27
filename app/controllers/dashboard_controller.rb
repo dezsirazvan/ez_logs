@@ -76,28 +76,21 @@ class DashboardController < ApplicationController
   end
 
   def stories
-    # Get all correlation IDs that have multiple events
-    correlation_ids = @company.events
-                              .where.not(correlation_id: [nil, ''])
-                              .group(:correlation_id)
-                              .having('COUNT(*) > 1')
-                              .pluck(:correlation_id)
+    # Use the new StoryReconstructor to find complete stories
+    complete_stories = StoryReconstructor.find_all_complete_stories(@company)
     
-    @stories = correlation_ids.map do |correlation_id|
-      events = @company.events.where(correlation_id: correlation_id).order(:timestamp)
-      first_event = events.first
-      last_event = events.last
-      duration = first_event && last_event ? (last_event.timestamp - first_event.timestamp) : 0
-      
+    @stories = complete_stories.map do |story|
       {
-        correlation_id: correlation_id,
-        events: events,
-        event_count: events.count,
-        first_event: first_event,
-        last_event: last_event,
-        duration: duration,
-        actors: events.map { |e| e.actor_display }.uniq.compact,
-        event_types: events.map(&:event_type).uniq.compact
+        correlation_id: story[:id],
+        events: story[:events],
+        event_count: story[:event_count],
+        first_event: story[:events].first,
+        last_event: story[:events].last,
+        duration: story[:duration],
+        actors: [actor_display_from_hash(story[:actor])].compact,
+        event_types: story[:components],
+        components: story[:components],
+        story_title: "#{story[:type].capitalize} Story ##{story[:id].split('_').last}"
       }
     end.sort_by { |story| -story[:event_count] }
     
@@ -117,7 +110,7 @@ class DashboardController < ApplicationController
     @pagination = {
       current_page: page,
       total_pages: total_pages,
-      total_count: correlation_ids.length,
+      total_count: complete_stories.length,
       per_page: per_page,
       has_next: page < total_pages,
       has_prev: page > 1,
@@ -129,25 +122,30 @@ class DashboardController < ApplicationController
 
   def story
     @correlation_id = params[:id]
-    @events = @company.events.where(correlation_id: @correlation_id).order(:timestamp)
     
-    if @events.empty?
+    # Find the story from all stories in the company
+    complete_stories = StoryReconstructor.find_all_complete_stories(@company)
+    complete_story = complete_stories.find { |story| story[:id] == @correlation_id }
+    
+    if complete_story.nil? || complete_story[:events].empty?
       redirect_to stories_path, alert: "Story not found"
       return
     end
     
-    first_event = @events.first
-    last_event = @events.last
-    duration = first_event && last_event ? (last_event.timestamp - first_event.timestamp) : nil
+    # Extract events from the complete story
+    @events = complete_story[:events]
     
     @story_summary = {
-      correlation_id: @correlation_id,
-      event_count: @events.count,
-      first_event: first_event,
-      last_event: last_event,
-      duration: duration,
-      actors: @events.map { |e| e.actor_display }.uniq.compact,
-      event_types: @events.map(&:event_type).uniq.compact
+      correlation_id: complete_story[:id],
+      original_correlation_id: @correlation_id,
+      event_count: complete_story[:event_count],
+      first_event: complete_story[:events].first,
+      last_event: complete_story[:events].last,
+      duration: complete_story[:duration],
+      actors: [actor_display_from_hash(complete_story[:actor])].compact,
+      event_types: complete_story[:components],
+      components: complete_story[:components],
+      story_title: "#{complete_story[:type].capitalize} Story ##{complete_story[:id].split('_').last}"
     }
   end
 
@@ -159,57 +157,38 @@ class DashboardController < ApplicationController
   end
 
   def get_story_flows
-    # Get correlation IDs with multiple events
-    correlation_ids = @company.events
-                              .where.not(correlation_id: [nil, ''])
-                              .group(:correlation_id)
-                              .having('COUNT(*) > 1')
-                              .pluck(:correlation_id)
-                              .first(5) # Limit to 5 for dashboard
+    # Use StoryReconstructor for dashboard summary
+    complete_stories = StoryReconstructor.find_all_complete_stories(@company)
     
-    correlation_ids.map do |correlation_id|
-      events = @company.events.where(correlation_id: correlation_id).order(:timestamp)
-      first_event = events.first
-      last_event = events.last
-      duration = first_event && last_event ? (last_event.timestamp - first_event.timestamp) : 0
-      
+    complete_stories.first(5).map do |story|
       {
-        correlation_id: correlation_id,
-        events: events,
-        event_count: events.count,
-        first_event: first_event,
-        last_event: last_event,
-        duration: duration,
-        actors: events.map { |e| e.actor_display }.uniq.compact,
-        event_types: events.map(&:event_type).uniq.compact
+        correlation_id: story[:id],
+        events: story[:events],
+        event_count: story[:event_count],
+        first_event: story[:events].first,
+        last_event: story[:events].last,
+        duration: story[:duration],
+        actors: [actor_display_from_hash(story[:actor])].compact,
+        event_types: story[:components]
       }
     end
   end
 
   def get_system_story_flows
-    # Get correlation IDs with multiple events across all companies
-    correlation_ids = Event
-                      .where.not(correlation_id: [nil, ''])
-                      .group(:correlation_id)
-                      .having('COUNT(*) > 1')
-                      .pluck(:correlation_id)
-                      .first(5) # Limit to 5 for dashboard
+    # Use StoryReconstructor for system-wide stories - get all companies
+    all_companies = Company.all
+    complete_stories = all_companies.flat_map { |company| StoryReconstructor.find_all_complete_stories(company) }
     
-    correlation_ids.map do |correlation_id|
-      events = Event.where(correlation_id: correlation_id).order(:timestamp)
-      first_event = events.first
-      last_event = events.last
-      duration = first_event && last_event ? (last_event.timestamp - first_event.timestamp) : 0
-      
+    complete_stories.first(5).map do |story|
       {
-        correlation_id: correlation_id,
-        events: events,
-        event_count: events.count,
-        first_event: first_event,
-        last_event: last_event,
-        duration: duration,
-        actors: events.map { |e| e.actor_display }.uniq.compact,
-        event_types: events.map(&:event_type).uniq.compact
+        correlation_id: story[:id],
+        events: story[:events],
+        event_count: story[:event_count],
+        first_event: story[:events].first,
+        last_event: story[:events].last,
+        duration: story[:duration],
+        actors: [actor_display_from_hash(story[:actor])].compact,
+        event_types: story[:components]
       }
     end
   end
@@ -342,6 +321,19 @@ class DashboardController < ApplicationController
           event.source || ''
         ]
       end
+    end
+  end
+
+  # Helper method to convert actor hash to display string
+  def actor_display_from_hash(actor)
+    return 'System' if actor.blank? || actor['type'].blank?
+    type = actor['type'] || actor[:type]
+    id = actor['id'] || actor[:id]
+    email = actor['email'] || actor[:email]
+    if email.present?
+      "#{type.humanize} #{email}"
+    else
+      "#{type.humanize} #{id}"
     end
   end
 end
