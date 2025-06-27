@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_25_133522) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_27_061752) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -100,6 +100,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_25_133522) do
     t.json "payload"
     t.json "platform"
     t.json "validation_errors", default: []
+    t.json "timing"
+    t.json "environment"
+    t.json "impact"
     t.index ["company_id"], name: "index_events_on_company_id"
     t.index ["correlation_id"], name: "index_events_on_correlation_id"
     t.index ["event_id"], name: "index_events_on_event_id", unique: true

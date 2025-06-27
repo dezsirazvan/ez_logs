@@ -156,6 +156,94 @@
               </div>
             <% end %>
 
+            <!-- Timing Information -->
+            <% if @event.timing.present? %>
+              <div class="mb-6">
+                <h3 class="text-sm font-medium text-gray-900 mb-2">⏱️ Timing Information</h3>
+                <div class="bg-indigo-50 rounded-lg p-4">
+                  <div class="mb-2">
+                    <span class="text-sm font-medium text-indigo-900"><%= @event.timing_display %></span>
+                  </div>
+                  <% if @event.timing.is_a?(Hash) %>
+                    <dl class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+                      <% @event.timing.each do |key, value| %>
+                        <div>
+                          <dt class="text-xs font-medium text-indigo-600 capitalize"><%= key.humanize %></dt>
+                          <dd class="text-sm text-indigo-900">
+                            <% if key.to_s.include?('_at') || key.to_s.include?('time') %>
+                              <% begin %>
+                                <%= Time.parse(value.to_s).strftime("%Y-%m-%d %H:%M:%S.%L") %>
+                              <% rescue %>
+                                <%= value %>
+                              <% end %>
+                            <% else %>
+                              <%= value %>
+                            <% end %>
+                          </dd>
+                        </div>
+                      <% end %>
+                    </dl>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+
+            <!-- Environment Information -->
+            <% if @event.environment.present? %>
+              <div class="mb-6">
+                <h3 class="text-sm font-medium text-gray-900 mb-2">🌍 Environment</h3>
+                <div class="bg-green-50 rounded-lg p-4">
+                  <div class="mb-2">
+                    <span class="text-sm font-medium text-green-900"><%= @event.environment_display %></span>
+                  </div>
+                  <% if @event.environment.is_a?(Hash) %>
+                    <dl class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+                      <% @event.environment.each do |key, value| %>
+                        <div>
+                          <dt class="text-xs font-medium text-green-600 capitalize"><%= key.humanize %></dt>
+                          <dd class="text-sm text-green-900">
+                            <% if value.is_a?(Hash) || value.is_a?(Array) %>
+                              <pre class="text-xs bg-white p-2 rounded border overflow-x-auto"><%= JSON.pretty_generate(value) %></pre>
+                            <% else %>
+                              <%= value %>
+                            <% end %>
+                          </dd>
+                        </div>
+                      <% end %>
+                    </dl>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+
+            <!-- Impact Information -->
+            <% if @event.impact.present? %>
+              <div class="mb-6">
+                <h3 class="text-sm font-medium text-gray-900 mb-2">⚠️ Impact</h3>
+                <div class="bg-orange-50 rounded-lg p-4">
+                  <div class="mb-2">
+                    <span class="text-sm font-medium text-orange-900"><%= @event.impact_display %></span>
+                  </div>
+                  <% if @event.impact.is_a?(Hash) %>
+                    <dl class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+                      <% @event.impact.each do |key, value| %>
+                        <div>
+                          <dt class="text-xs font-medium text-orange-600 capitalize"><%= key.humanize %></dt>
+                          <dd class="text-sm text-orange-900">
+                            <% if value.is_a?(Hash) || value.is_a?(Array) %>
+                              <pre class="text-xs bg-white p-2 rounded border overflow-x-auto"><%= JSON.pretty_generate(value) %></pre>
+                            <% else %>
+                              <%= value %>
+                            <% end %>
+                          </dd>
+                        </div>
+                      <% end %>
+                    </dl>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+
             <!-- Validation Errors -->
             <% if @event.validation_errors.present? && @event.validation_errors.any? %>
               <div class="mb-6">

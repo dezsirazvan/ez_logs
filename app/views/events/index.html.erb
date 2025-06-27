@@ -277,6 +277,18 @@
                       <%= event.timestamp.strftime("%b %d, %Y at %I:%M %p") %>
                       <span class="mx-2">•</span>
                       <%= time_ago_in_words(event.timestamp) %> ago
+                      <% if event.timing.present? %>
+                        <span class="mx-2">•</span>
+                        <span class="text-indigo-600 font-medium">⏱️ <%= event.timing_display %></span>
+                      <% end %>
+                      <% if event.environment.present? %>
+                        <span class="mx-2">•</span>
+                        <span class="text-green-600 font-medium">🌍 <%= event.environment_display %></span>
+                      <% end %>
+                      <% if event.impact.present? %>
+                        <span class="mx-2">•</span>
+                        <span class="text-orange-600 font-medium">⚠️ <%= event.impact_display %></span>
+                      <% end %>
                     </div>
                   </div>
                 </div>

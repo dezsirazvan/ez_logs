@@ -2,7 +2,7 @@ class Event < ApplicationRecord
   belongs_to :company
 
   # Universal event schema fields:
-  # event_id, correlation_id, event_type, action, actor (JSON), subject (JSON), metadata, timestamp, correlation, correlation_context, payload, platform, validation_errors
+  # event_id, correlation_id, event_type, action, actor (JSON), subject (JSON), metadata, timestamp, correlation, correlation_context, payload, platform, validation_errors, timing, environment, impact
 
   validates :event_type, :action, :timestamp, :event_id, :correlation_id, presence: true
   validates :actor, presence: true
@@ -66,6 +66,69 @@ class Event < ApplicationRecord
     end
   end
 
+  # Helper methods for new fields
+  def timing_display
+    return 'N/A' if timing.blank?
+    if timing.is_a?(Hash)
+      duration = timing['duration'] || timing[:duration]
+      started_at = timing['started_at'] || timing[:started_at]
+      completed_at = timing['completed_at'] || timing[:completed_at]
+      
+      if duration.present?
+        "Duration: #{duration}ms"
+      elsif started_at.present? && completed_at.present?
+        start_time = Time.parse(started_at) rescue nil
+        end_time = Time.parse(completed_at) rescue nil
+        if start_time && end_time
+          duration_ms = ((end_time - start_time) * 1000).round(2)
+          "Duration: #{duration_ms}ms"
+        else
+          "Started: #{started_at}, Completed: #{completed_at}"
+        end
+      else
+        timing.to_s.truncate(50)
+      end
+    else
+      timing.to_s.truncate(50)
+    end
+  end
+
+  def environment_display
+    return 'N/A' if environment.blank?
+    if environment.is_a?(Hash)
+      env_name = environment['name'] || environment[:name] || environment['environment'] || environment[:environment]
+      version = environment['version'] || environment[:version]
+      region = environment['region'] || environment[:region]
+      
+      parts = []
+      parts << env_name if env_name.present?
+      parts << "v#{version}" if version.present?
+      parts << region if region.present?
+      
+      parts.any? ? parts.join(' | ') : environment.keys.first(3).join(', ')
+    else
+      environment.to_s.truncate(50)
+    end
+  end
+
+  def impact_display
+    return 'N/A' if impact.blank?
+    if impact.is_a?(Hash)
+      severity = impact['severity'] || impact[:severity]
+      affected_users = impact['affected_users'] || impact[:affected_users]
+      affected_systems = impact['affected_systems'] || impact[:affected_systems]
+      
+      parts = []
+      parts << "Severity: #{severity.humanize}" if severity.present?
+      parts << "Users: #{affected_users}" if affected_users.present?
+      parts << "Systems: #{affected_systems}" if affected_systems.present?
+      
+      parts.any? ? parts.join(' | ') : impact.keys.first(3).join(', ')
+    else
+      impact.to_s.truncate(50)
+    end
+  end
+
   # Accepts a UniversalEvent-style hash and creates an Event record
   def self.ingest_universal_event!(event_hash, company_id:)
     create!(company_id: company_id,
@@ -81,6 +144,9 @@ class Event < ApplicationRecord
             correlation_context: event_hash[:correlation_context] || event_hash['correlation_context'],
             payload: event_hash[:payload] || event_hash['payload'],
             platform: event_hash[:platform] || event_hash['platform'],
+            timing: event_hash[:timing] || event_hash['timing'],
+            environment: event_hash[:environment] || event_hash['environment'],
+            impact: event_hash[:impact] || event_hash['impact'],
             validation_errors: event_hash[:validation_errors] || event_hash['validation_errors'] || [],
             source: event_hash[:source] || event_hash['source'],
             tags: event_hash[:tags] || event_hash['tags'])

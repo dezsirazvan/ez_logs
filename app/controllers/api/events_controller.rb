@@ -110,6 +110,13 @@ class Api::EventsController < ApplicationController
       actor: event_data['actor'] || {},
       subject: event_data['subject'] || event_data['target'] || {},
       metadata: event_data['metadata'] || {},
+      correlation: event_data['correlation'] || {},
+      correlation_context: event_data['correlation_context'] || {},
+      payload: event_data['payload'] || {},
+      timing: event_data['timing'] || {},
+      platform: event_data['platform'] || {},
+      environment: event_data['environment'] || {},
+      impact: event_data['impact'] || {},
       timestamp: parse_timestamp(event_data['timestamp']),
       source: event_data['source'] || 'go_agent',
       tags: event_data['tags']
@@ -225,6 +232,8 @@ class Api::EventsController < ApplicationController
   end
 
   def event_params
-    params.require(:event).permit(:event_type, :action, :actor_type, :actor_id, :subject_type, :subject_id, :severity, :source, :tags, :metadata, :timestamp)
+    params.require(:event).permit(:event_type, :action, :event_id, :correlation_id, :severity, :source, :tags, :timestamp,
+                                  actor: {}, subject: {}, metadata: {}, correlation: {}, correlation_context: {}, 
+                                  payload: {}, timing: {}, platform: {}, environment: {}, impact: {})
   end
 end
